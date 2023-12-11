@@ -1,0 +1,21 @@
+name: tekaly_music_note
+description: A starting point for Dart libraries or applications.
+version: 1.0.0
+# repository: https://github.com/my_org/my_repo
+
+environment:
+  sdk: ^3.2.0
+
+# Add regular dependencies here.
+dependencies:
+  collection:
+
+dev_dependencies:
+  lints: ^2.1.0
+  test: ^1.24.0
+  tekartik_lints:
+    git:
+      url: https://github.com/tekartik/common.dart
+      ref: dart3a
+      path: packages/lints
+    version: '>=0.1.0'

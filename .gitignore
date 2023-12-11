@@ -1,0 +1,10 @@
+# Alex
+.local/
+.idea/
+*.iml
+.vscode/
+
+
+# linux
+.uuid
+/chordelio_flutter/support/pubspec_overrides.yaml

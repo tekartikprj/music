@@ -1,0 +1,132 @@
+import 'chord_pattern.dart';
+
+List<String> keyNames = [
+  'C',
+  'Db',
+  'D',
+  'Eb',
+  'E',
+  'F',
+  'Gb',
+  'G',
+  'Ab',
+  'A',
+  'Bb',
+  'B'
+];
+
+List<String> flatKeyNames = [
+  'C',
+  'Db',
+  'D',
+  'Eb',
+  'E',
+  'F',
+  'Gb',
+  'G',
+  'Ab',
+  'A',
+  'Bb',
+  'B'
+];
+
+List<String> sharpKeyNames = [
+  'C',
+  'C#',
+  'D',
+  'D#',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'G#',
+  'A',
+  'A#',
+  'B'
+];
+
+List<String?> intervalShortNames = [
+  'R',
+  'm2',
+  'M2',
+  'm3',
+  'M3',
+  '4',
+  'T',
+  '5',
+  'm6',
+  'M6',
+  'm7',
+  'm7',
+  // Octave
+  'O',
+  'm9',
+  'M9',
+  null,
+  null,
+  '11',
+  null,
+  null,
+  null,
+  '13'
+];
+List<String?> intervalLongNames = [
+  'Root',
+  'Minor 2nd',
+  'major 2nd',
+  'Minor 3rd',
+  'major 3rd',
+  'Perfect 4th',
+  'Tritone',
+  'Perfect 5th',
+  'Minor 6th',
+  'major 6th',
+  'Minor 7th',
+  'major 7th',
+  // Octave
+  'Octave',
+  'b9',
+  '9',
+  null,
+  null,
+  '11',
+  null,
+  null,
+  null,
+  '13'
+];
+
+Map<ChordPattern, String> chordPatternNames = {
+  major: 'Major',
+  minor: 'Minor',
+  major7: 'Major7',
+  minor7: 'Minor7',
+  major7M: 'Major7M',
+  minor7M: 'Minor7M',
+  major6: 'Major6',
+  minor6: 'Minor6',
+  dim: 'Dim',
+  dim7: 'Dim7',
+  aug: 'Aug',
+  sus2: 'Sus2',
+  sus4: 'Sus4',
+  sevenSus4: '7Sus4',
+  major9: 'Major9',
+  minor9: 'Minor9',
+  major9M: 'Major9M',
+  majorAdd9: 'MajorAdd9',
+  minorAdd9: 'MinorAdd9',
+  major6_9: 'Major6/9',
+  minor6_9: 'Minor6/9',
+  major7_b5: 'Major7b5',
+  minor7_b5: 'Minor7b5',
+  major7_sharp5: 'Major7#5',
+  major7_b9: 'Major7b9',
+  minor7_b9: 'Minor7b9',
+  major9_b5: 'Minor9b5',
+  major_b5: 'Major/b5',
+  major11: 'Major11',
+  minor11: 'Minor11',
+  major13: 'Major13',
+  minor13: 'Minor13',
+};
