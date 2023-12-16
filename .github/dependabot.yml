@@ -8,7 +8,10 @@ updates:
     directory: "packages/music_note"
     schedule:
       interval: "monthly"
-
+  - package-ecosystem: "pub"
+    directory: "packages/chrodpro"
+    schedule:
+      interval: "monthly"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
