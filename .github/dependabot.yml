@@ -9,7 +9,7 @@ updates:
     schedule:
       interval: "monthly"
   - package-ecosystem: "pub"
-    directory: "packages/chrodpro"
+    directory: "packages/chordpro"
     schedule:
       interval: "monthly"
   - package-ecosystem: "github-actions"
