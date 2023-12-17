@@ -1,24 +1,10 @@
+import 'dart:convert';
+
 import 'package:tekaly_music_note/music_note.dart';
 
+/// Text convert helpers
 String textToChordPro(String text) {
-  var lines = text.split('\n');
-  var result = <String>[];
-  for (var line in lines) {
-    var trimmedLine = line.trim();
-    if (trimmedLine.isEmpty) {
-      result.add('');
-    } else {
-      var chordIndex = trimmedLine.indexOf(' ');
-      if (chordIndex == -1) {
-        result.add(trimmedLine);
-      } else {
-        var chord = trimmedLine.substring(0, chordIndex);
-        var lyrics = trimmedLine.substring(chordIndex + 1);
-        result.add('$chord[$lyrics]');
-      }
-    }
-  }
-  return result.join('\n');
+  return textLinesToChordProLines(LineSplitter.split(text).toList()).join('\n');
 }
 
 bool _isChordLine(String line) {

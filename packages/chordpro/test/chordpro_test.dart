@@ -3,6 +3,9 @@ import 'package:test/test.dart';
 
 void main() {
   group('chordpro', () {
+    test('textToChordPro', () {
+      expect(textToChordPro('E D  E\nI'), '[E]I [D]  [E]');
+    });
     test('ChordLyric', () {
       expect(textLinesToChordProLines(['E D  E', 'I']), ['[E]I [D]  [E]']);
       expect(textLinesToChordProLines(['E  D', 'Id t']), ['[E]Id [D]t']);

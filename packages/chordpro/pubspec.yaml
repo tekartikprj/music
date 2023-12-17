@@ -1,6 +1,6 @@
 name: tekaly_chordpro
 description: Dart chord pro format/parser
-version: 0.1.1
+version: 0.1.3
 publish_to: none
 
 environment:
