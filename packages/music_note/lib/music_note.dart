@@ -97,7 +97,10 @@ export 'package:tekaly_music_note/src/names.dart'
         sharpKeyNames,
         keyNames,
         intervalLongNames,
-        intervalShortNames;
+        intervalShortNames,
+        tryParseKey,
+        tryParseChordPattern,
+        tryParseChord;
 export 'package:tekaly_music_note/src/note.dart'
     show
         Note,
