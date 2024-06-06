@@ -17,8 +17,6 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            dart: 3.1.4
-          - os: ubuntu-latest
             dart: stable
           - os: ubuntu-latest
             dart: beta
@@ -34,8 +32,8 @@ jobs:
           sdk: ${{ matrix.dart }}
       - uses: actions/setup-node@v2
         with:
-          node-version: '14'
-      - uses: actions/checkout@v2
+          node-version: '20'
+      - uses: actions/checkout@v4
       - run: dart --version
       - run: dart pub global activate dev_build
       - run: dart pub global run dev_build:run_ci --recursive
