@@ -8,3 +8,5 @@
 # linux
 .uuid
 /chordelio_flutter/support/pubspec_overrides.yaml
+/.dart_tool/
+/pubspec.lock

@@ -116,6 +116,7 @@ export 'package:tekaly_music_note/src/note.dart'
         c3,
         d3,
         e3,
+        f3,
         fSharp3,
         g3,
         b3,

@@ -30,6 +30,7 @@ String _chordLineToChordProLine(String line) {
   return sb.toString();
 }
 
+/// Convert text lines to chordpro lines
 List<String> textLinesToChordProLines(List<String> lines) {
   var result = <String>[];
   String? sectionType;

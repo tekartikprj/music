@@ -8,7 +8,7 @@ environment:
 
 # Add regular dependencies here.
 dependencies:
-  path: '>=1.8.0'
+  path: ">=1.9.0"
   tekartik_common_utils:
     git:
       url: https://github.com/tekartik/common_utils.dart
@@ -21,8 +21,7 @@ dependencies:
       path: packages/music_note
     version: '>=0.1.0'
 dev_dependencies:
-  lints: '>=2.1.0'
+  lints: ">=5.0.0"
   test: '>=1.24.0'
-dependency_overrides:
-  tekaly_music_note:
-    path: ../music_note
+
+resolution: workspace

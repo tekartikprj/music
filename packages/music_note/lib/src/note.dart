@@ -38,6 +38,11 @@ final a2 = _note(a, 2);
 final c3 = _note(c, 3);
 final d3 = _note(d, 3);
 final e3 = _note(e, 3);
+
+/// F3
+final f3 = _note(f, 3);
+
+/// F#3
 final fSharp3 = _note(fSharp, 3);
 final g3 = _note(g, 3);
 final a3 = _note(a, 3);
