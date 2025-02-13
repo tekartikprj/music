@@ -8,7 +8,7 @@ class Note extends SemitonesBase {
   const Note(super.semitones);
 
   Note.from(Key key, int octave)
-      : super((octave + 1) * octaveNoteCount + key.semitones);
+    : super((octave + 1) * octaveNoteCount + key.semitones);
 
   Note noteAtOffset(int semitonesOffset) => Note(semitones + semitonesOffset);
 

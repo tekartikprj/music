@@ -56,7 +56,7 @@ List<String?> intervalLongNames = [
   null,
   null,
   null,
-  '13'
+  '13',
 ];
 
 const root = Interval('root', 0);

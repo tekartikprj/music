@@ -14,7 +14,7 @@ void main() {
       for (var map in [
         nonAlteredKeyNames,
         flatOnlyKeyNames,
-        sharpOnlyKeyNames
+        sharpOnlyKeyNames,
       ]) {
         map.forEach((key, value) {
           expect(tryParseKey(value), key);

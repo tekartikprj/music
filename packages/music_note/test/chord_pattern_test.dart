@@ -63,27 +63,42 @@ void main() {
     });
 
     test('checkChordPatternIntervals', () {
-      expect(() => checkChordPattern(null),
-          throwsA(const TypeMatcher<ArgumentError>()));
-      expect(() => checkChordPattern(ChordPattern(null)),
-          throwsA(const TypeMatcher<ArgumentError>()));
-      expect(() => checkChordPattern(ChordPattern([])),
-          throwsA(const TypeMatcher<ArgumentError>()));
-      expect(() => checkChordPattern(ChordPattern([root])),
-          throwsA(const TypeMatcher<ArgumentError>()));
+      expect(
+        () => checkChordPattern(null),
+        throwsA(const TypeMatcher<ArgumentError>()),
+      );
+      expect(
+        () => checkChordPattern(ChordPattern(null)),
+        throwsA(const TypeMatcher<ArgumentError>()),
+      );
+      expect(
+        () => checkChordPattern(ChordPattern([])),
+        throwsA(const TypeMatcher<ArgumentError>()),
+      );
+      expect(
+        () => checkChordPattern(ChordPattern([root])),
+        throwsA(const TypeMatcher<ArgumentError>()),
+      );
       checkChordPattern(ChordPattern([root, major3rd]));
-      expect(() => checkChordPattern(ChordPattern([root, major3rd])),
-          isNot(throwsA(const TypeMatcher<ArgumentError>())));
-      expect(() => checkChordPattern(ChordPattern([major2nd, major9th])),
-          isNot(throwsA(const TypeMatcher<ArgumentError>())));
+      expect(
+        () => checkChordPattern(ChordPattern([root, major3rd])),
+        isNot(throwsA(const TypeMatcher<ArgumentError>())),
+      );
+      expect(
+        () => checkChordPattern(ChordPattern([major2nd, major9th])),
+        isNot(throwsA(const TypeMatcher<ArgumentError>())),
+      );
     });
     test('all chords', () {
       expect(chordPatternNames.length, 32);
       var existingPatterns = <ChordPattern>{};
       for (var chordPattern in allPatterns) {
         checkChordPattern(chordPattern);
-        expect(existingPatterns, isNot(contains(chordPattern)),
-            reason: chordPattern.toString());
+        expect(
+          existingPatterns,
+          isNot(contains(chordPattern)),
+          reason: chordPattern.toString(),
+        );
         existingPatterns.add(chordPattern);
       }
     });

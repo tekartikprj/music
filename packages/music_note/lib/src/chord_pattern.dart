@@ -98,14 +98,29 @@ const sus4 = ChordPattern([root, perfect4th, perfect5th]);
 const sevenSus4 = ChordPattern([root, perfect4th, perfect5th, minor7th]);
 const major9 = ChordPattern([root, major3rd, perfectFifth, minor7th, major9th]);
 const minor9 = ChordPattern([root, minor3rd, perfectFifth, minor7th, major9th]);
-const major9M =
-    ChordPattern([root, major3rd, perfectFifth, major7th, major9th]);
+const major9M = ChordPattern([
+  root,
+  major3rd,
+  perfectFifth,
+  major7th,
+  major9th,
+]);
 const majorAdd9 = ChordPattern([root, major3rd, perfectFifth, major9th]);
 const minorAdd9 = ChordPattern([root, minor3rd, perfectFifth, major9th]);
-const major6_9 =
-    ChordPattern([root, major3rd, perfectFifth, major6th, major9th]);
-const minor6_9 =
-    ChordPattern([root, minor3rd, perfectFifth, major6th, major9th]);
+const major6_9 = ChordPattern([
+  root,
+  major3rd,
+  perfectFifth,
+  major6th,
+  major9th,
+]);
+const minor6_9 = ChordPattern([
+  root,
+  minor3rd,
+  perfectFifth,
+  major6th,
+  major9th,
+]);
 // ignore: constant_identifier_names
 const major7_b5 = ChordPattern([root, major3rd, fifthFlat, minor7th]);
 // ignore: constant_identifier_names
@@ -113,22 +128,58 @@ const minor7_b5 = ChordPattern([root, minor3rd, fifthFlat, minor7th]);
 // ignore: constant_identifier_names
 const major7_sharp5 = ChordPattern([root, major3rd, fifthSharp, minor7th]);
 // ignore: constant_identifier_names
-const major7_b9 =
-    ChordPattern([root, major3rd, perfect5th, minor7th, minor9th]);
+const major7_b9 = ChordPattern([
+  root,
+  major3rd,
+  perfect5th,
+  minor7th,
+  minor9th,
+]);
 // ignore: constant_identifier_names
-const minor7_b9 =
-    ChordPattern([root, minor3rd, perfect5th, minor7th, minor9th]);
+const minor7_b9 = ChordPattern([
+  root,
+  minor3rd,
+  perfect5th,
+  minor7th,
+  minor9th,
+]);
 // ignore: constant_identifier_names
 const major9_b5 = ChordPattern([root, major3rd, fifthFlat, minor7th, major9th]);
 // ignore: constant_identifier_names
 const major_b5 = ChordPattern([root, major3rd, fifthFlat]);
-const major11 = ChordPattern(
-    [root, major3rd, perfectFifth, minor7th, major9th, perfect11th]);
-const minor11 = ChordPattern(
-    [root, minor3rd, perfectFifth, minor7th, major9th, perfect11th]);
-const major13 = ChordPattern(
-    [root, major3rd, perfectFifth, minor7th, major9th, perfect11th, major13th]);
-const minor13 = ChordPattern(
-    [root, minor3rd, perfectFifth, minor7th, major9th, perfect11th, major13th]);
+const major11 = ChordPattern([
+  root,
+  major3rd,
+  perfectFifth,
+  minor7th,
+  major9th,
+  perfect11th,
+]);
+const minor11 = ChordPattern([
+  root,
+  minor3rd,
+  perfectFifth,
+  minor7th,
+  major9th,
+  perfect11th,
+]);
+const major13 = ChordPattern([
+  root,
+  major3rd,
+  perfectFifth,
+  minor7th,
+  major9th,
+  perfect11th,
+  major13th,
+]);
+const minor13 = ChordPattern([
+  root,
+  minor3rd,
+  perfectFifth,
+  minor7th,
+  major9th,
+  perfect11th,
+  major13th,
+]);
 
 Iterable<ChordPattern> allPatterns = chordPatternNames.keys;

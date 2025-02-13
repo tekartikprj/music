@@ -13,12 +13,20 @@ void main() {
       expect(textLinesToChordProLines(['E', 'I']), ['[E]I']);
     });
     test('Section', () {
-      expect(textLinesToChordProLines(['[Intro]', 'Am C  E']),
-          ['{start_of_bridge: Intro}', '[Am] [C]  [E]', '{end_of_bridge}']);
-      expect(textLinesToChordProLines(['[Intro]', 'Am']),
-          ['{start_of_bridge: Intro}', '[Am]', '{end_of_bridge}']);
-      expect(textLinesToChordProLines(['[Verse 1]']),
-          ['{start_of_verse: Verse 1}', '{end_of_verse}']);
+      expect(textLinesToChordProLines(['[Intro]', 'Am C  E']), [
+        '{start_of_bridge: Intro}',
+        '[Am] [C]  [E]',
+        '{end_of_bridge}',
+      ]);
+      expect(textLinesToChordProLines(['[Intro]', 'Am']), [
+        '{start_of_bridge: Intro}',
+        '[Am]',
+        '{end_of_bridge}',
+      ]);
+      expect(textLinesToChordProLines(['[Verse 1]']), [
+        '{start_of_verse: Verse 1}',
+        '{end_of_verse}',
+      ]);
     });
   });
 }

@@ -96,16 +96,10 @@ const List<Key> allKeys = [
   gSharp,
   a,
   aSharp,
-  b
+  b,
 ];
 
-const List<Key> allAlteredKeys = [
-  cSharp,
-  dSharp,
-  fSharp,
-  gSharp,
-  aSharp,
-];
+const List<Key> allAlteredKeys = [cSharp, dSharp, fSharp, gSharp, aSharp];
 
 const List<Key> allUnalteredKeys = [c, d, e, f, g, a, b];
 

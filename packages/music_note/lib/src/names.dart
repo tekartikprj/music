@@ -12,7 +12,7 @@ List<String> keyNames = [
   'Ab',
   'A',
   'Bb',
-  'B'
+  'B',
 ];
 
 List<String> flatKeyNames = [
@@ -27,7 +27,7 @@ List<String> flatKeyNames = [
   'Ab',
   'A',
   'Bb',
-  'B'
+  'B',
 ];
 
 List<String> sharpKeyNames = [
@@ -42,7 +42,7 @@ List<String> sharpKeyNames = [
   'G#',
   'A',
   'A#',
-  'B'
+  'B',
 ];
 
 List<String?> intervalShortNames = [
@@ -68,7 +68,7 @@ List<String?> intervalShortNames = [
   null,
   null,
   null,
-  '13'
+  '13',
 ];
 List<String?> intervalLongNames = [
   'Root',
@@ -93,7 +93,7 @@ List<String?> intervalLongNames = [
   null,
   null,
   null,
-  '13'
+  '13',
 ];
 
 Map<ChordPattern, String> chordPatternNames = {
@@ -131,15 +131,7 @@ Map<ChordPattern, String> chordPatternNames = {
   minor13: 'Minor13',
 };
 
-var unalteredKeyNames = [
-  'C',
-  'D',
-  'E',
-  'F',
-  'G',
-  'A',
-  'B',
-];
+var unalteredKeyNames = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 var alteredKeyNames = [
   'C#',
   'Db',
@@ -301,12 +293,12 @@ final flatOnlyKeyNames = {
   dSharp: 'Eb',
   fSharp: 'Gb',
   gSharp: 'Ab',
-  aSharp: 'Bb'
+  aSharp: 'Bb',
 };
 var sharpOnlyKeyNames = {
   cSharp: 'C#',
   dSharp: 'D#',
   fSharp: 'F#',
   gSharp: 'G#',
-  aSharp: 'A#'
+  aSharp: 'A#',
 };
