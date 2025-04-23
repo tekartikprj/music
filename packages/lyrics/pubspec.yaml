@@ -1,4 +1,4 @@
-name: tekartik_lyrics
+name: tekaly_lyrics
 description: Tekartik lyrics parser
 version: 1.0.0
 publish_to: none
@@ -12,6 +12,10 @@ dependencies:
   tekartik_common_utils:
     git:
       url: https://github.com/tekartik/common_utils.dart
+      ref: dart3a
+  tekartik_midi:
+    git:
+      url: https://github.com/tekartik/midi.dart
       ref: dart3a
   # path: ^1.8.0
 

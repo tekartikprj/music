@@ -1,7 +1,8 @@
 import 'dart:convert';
+
 import 'package:meta/meta.dart';
+import 'package:tekaly_lyrics/src/lyrics.dart';
 import 'package:tekartik_common_utils/string_utils.dart';
-import 'package:tekartik_lyrics/src/lyric.dart';
 
 /// Parses a LRC lyric duration string and returns a [Duration] object.
 Duration? tryParseLyricDuration(String token) {
@@ -10,31 +11,43 @@ Duration? tryParseLyricDuration(String token) {
   var secondsAndMillis = filtered.substring(minutes.length + 1);
   var parts = secondsAndMillis.split('.');
   var seconds = parts.first;
-  var centiseconds = parts.length > 1 ? parts[1] : '0';
+  var millis = 0;
+  if (parts.length > 1) {
+    var millisString = parts[1].trim();
+    var number = millisString.tryParseInt();
+    if (number != null) {
+      if (millisString.length == 1) {
+        millis = number * 100;
+      } else if (millisString.length == 2) {
+        millis = number * 10;
+      } else if (millisString.length == 3) {
+        millis = number;
+      }
+    }
+  }
   var minutesInt = minutes.tryParseInt();
   var secondsInt = seconds.tryParseInt();
-  var centisecondsInt = centiseconds.tryParseInt();
   if (minutesInt == null || secondsInt == null) {
     return null;
   }
   return Duration(
     minutes: minutesInt,
     seconds: secondsInt,
-    milliseconds: (centisecondsInt ?? 0) * 10,
+    milliseconds: millis,
   );
 }
 
 /// Parses a LRC lyric duration string and returns a [Duration] object.
-Duration parseLyricDuration(String token) {
+Duration parseLyricDurationLrc(String token) {
   return tryParseLyricDuration(token) ?? Duration.zero;
 }
 
-/// Parses a LRC lyric string and returns a [LyricData] object.
-LyricData parseLyric(String input) {
+/// Parses a LRC lyric string and returns a [LyricsData] object.
+LyricsData parseLyricLrc(String input) {
   var lines = LineSplitter.split(input).toList();
   String? author;
   String? title;
-  var lyricLines = <LyricLineData>[];
+  var lyricLines = <LyricsLineData>[];
   for (var i = 0; i < lines.length; i++) {
     var line = lines[i].trim();
     if (line.isNotEmpty) {
@@ -67,65 +80,129 @@ LyricData parseLyric(String input) {
     }
   }
 
-  final lyricData = LyricData(artist: author, title: title, lines: lyricLines);
+  final lyricData = LyricsData(artist: author, title: title, lines: lyricLines);
   return lyricData;
 }
 
-/// Parses a LRC lyric line and returns a [LyricLineData] object.
+/// Parses a LRC lyric line and returns a [LyricsLineData] object.
 @visibleForTesting
-LyricLineData parseLyricLine(String durationToken, String line) {
-  var current = line;
-  var result = findTime(current);
-  var index = result.index;
-  var lineTime = parseLyricDuration(durationToken);
-  if (index == null) {
-    var lyricLine = LyricLineData(
-      content: LyricLineSingleContent(
-        time: lineTime,
-        part: LyricPartData(time: lineTime, content: line),
+LyricsLineData parseLyricLine(String durationToken, String line) {
+  var parseResult = parseLyricLineContent(
+    parseLyricDurationLrc(durationToken),
+    line,
+  );
+  if (parseResult.parts.isEmpty) {
+    return LyricsLineData(
+      content: LyricsLineSingleContent(
+        time: parseResult.time,
+        part: LyricsPartData(time: parseResult.time, text: parseResult.text),
       ),
     );
-    return lyricLine;
   } else {
-    var time = lineTime;
-    var exitNext = false;
-    var parts = <LyricPartData>[];
-    while (true) {
-      var before = current.substring(0, index);
-
-      var partData = LyricPartData(time: time, content: before);
-
-      /// set for the next iteration
-      time = result.time!;
-
-      /// Special case if the first one is empty and matches the line time
-      if (parts.isEmpty && partData.time == time && partData.content.isEmpty) {
-        // skip
-      } else {
-        parts.add(partData);
-      }
-
-      if (exitNext) {
-        break;
-      }
-      current = result.next!;
-
-      /// set for the next iteration
-      time = result.time!;
-
-      result = findTime(current);
-      index = result.index;
-
-      if (index == null) {
-        exitNext = true;
-        // Special trick to handle the last part
-        result = FindTimeResult(index: current.length, next: '', time: time);
-      }
-    }
-    return LyricLineData(
-      content: LyricLineMultiContent(time: lineTime, parts: parts),
+    return LyricsLineData(
+      content: LyricsLineMultiContent(
+        time: parseResult.time,
+        parts: parseResult.parts,
+        text: parseResult.text,
+      ),
     );
   }
+}
+
+/// Parser result
+class LyricsLineContentParserResult {
+  /// Empty for line without time info
+  final List<LyricsPartData> parts;
+
+  /// The text of the line
+  final String text;
+
+  /// The time of the line
+  final Duration time;
+
+  /// Constructor
+  LyricsLineContentParserResult({
+    required this.parts,
+    required this.text,
+    required this.time,
+  });
+}
+
+class _LyricsLineParser {
+  LyricsLineContentParserResult parseLyricLineContent(
+    Duration time,
+    String line,
+  ) {
+    var lineTime = time;
+    var current = line.trim();
+    var fullLineSb = StringBuffer();
+    var parts = <LyricsPartData>[];
+    var needSpaceBefore = false;
+    var hasParts = false;
+    while (true) {
+      var result = findTime(current);
+      var index = result.index;
+
+      void add(String text) {
+        if (text.isNotEmpty) {
+          if (text.trim().isEmpty) {
+            needSpaceBefore = true;
+          } else {
+            text = text.trimLeft();
+            if (needSpaceBefore) {
+              text = ' $text';
+            }
+
+            /// next need space?
+            needSpaceBefore = text.endsWithWhitespaces();
+            text = text.trimRight();
+            fullLineSb.write(text);
+            parts.add(LyricsPartData(time: time, text: text));
+            return;
+          }
+        }
+
+        /// Don't add if same time than the line time
+        if (time != lineTime) {
+          parts.add(LyricsPartData(time: time, text: text.trim()));
+        }
+      }
+
+      if (index == null) {
+        if (!hasParts) {
+          return LyricsLineContentParserResult(
+            time: time,
+            parts: parts,
+            text: current,
+          );
+        } else {
+          add(current);
+        }
+        break;
+      }
+      hasParts = true;
+      var before = current.substring(0, index);
+      add(before);
+
+      time = result.time!;
+      current = result.next!;
+    }
+    return LyricsLineContentParserResult(
+      time: lineTime,
+      parts: parts,
+      text: fullLineSb.toString(),
+    );
+  }
+}
+
+/// Parses a LRC lyric line and returns a [LyricsLineData] object.
+@visibleForTesting
+LyricsLineContentParserResult parseLyricLineContent(
+  Duration time,
+  String line,
+) {
+  var parser = _LyricsLineParser();
+  return parser.parseLyricLineContent(time, line);
 }
 
 /// Finds the time tag in a LRC lyric line and returns a [FindTimeResult] object.

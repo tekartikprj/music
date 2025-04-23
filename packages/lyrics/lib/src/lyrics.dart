@@ -1,5 +1,5 @@
 /// Lyric data model
-class LyricData {
+class LyricsData {
   /// Title of the media
   final String? title;
 
@@ -10,10 +10,10 @@ class LyricData {
   final Duration? duration;
 
   /// Lines of the lyric
-  final List<LyricLineData> lines;
+  final List<LyricsLineData> lines;
 
   /// Constructor
-  LyricData({
+  LyricsData({
     required this.title,
     required this.artist,
     required this.lines,
@@ -27,41 +27,55 @@ class LyricData {
 }
 
 /// Lyric line content
-abstract class LyricLineContent {
+abstract class LyricsLineContent {
   /// Duration at which the line should be displayed
   final Duration time;
 
+  /// The text of the line
+  String get text;
+
   /// Constructor
-  LyricLineContent({required this.time});
+  LyricsLineContent({required this.time});
 }
 
 /// Lyric line content with a single part
-class LyricLineSingleContent extends LyricLineContent {
+class LyricsLineSingleContent extends LyricsLineContent {
   /// Content of the line
-  final LyricPartData part;
+  final LyricsPartData part;
+
+  /// Text
+  @override
+  String get text => part.text;
 
   /// Constructor
-  LyricLineSingleContent({required super.time, required this.part});
+  LyricsLineSingleContent({required super.time, required this.part});
 
   @override
   String toString() {
-    return '[${formatLyricDuration(part.time)}] ${part.content}';
+    return '[${formatLyricsDuration(part.time)}] ${part.text}';
   }
 }
 
 /// Lyric line content with multiple parts
-class LyricLineMultiContent extends LyricLineContent {
+class LyricsLineMultiContent extends LyricsLineContent {
   /// Content of the line
-  final List<LyricPartData> parts;
+  final List<LyricsPartData> parts;
 
   /// Constructor
-  LyricLineMultiContent({required super.time, required this.parts});
+  LyricsLineMultiContent({
+    required super.time,
+    required this.parts,
+    required this.text,
+  });
+
+  @override
+  final String text;
 
   @override
   String toString() {
     var buffer = StringBuffer();
     buffer.write('[');
-    buffer.write(formatLyricDuration(time));
+    buffer.write(formatLyricsDuration(time));
     buffer.write('] ');
     for (var part in parts) {
       buffer.write(part);
@@ -71,12 +85,12 @@ class LyricLineMultiContent extends LyricLineContent {
 }
 
 /// Lyric line data
-class LyricLineData {
+class LyricsLineData {
   /// Content of the line, if empty means the end of the line
-  final LyricLineContent content;
+  final LyricsLineContent content;
 
   /// Constructor
-  LyricLineData({required this.content});
+  LyricsLineData({required this.content});
 
   /// Duration at which the line should be displayed
   Duration get time => content.time;
@@ -86,7 +100,7 @@ class LyricLineData {
 }
 
 /// Lyric part data
-String formatLyricDuration(Duration duration) {
+String formatLyricsDuration(Duration duration) {
   var milliseconds = duration.inMilliseconds;
   var seconds = (milliseconds ~/ 1000) % 60;
   var minutes = (milliseconds ~/ (1000 * 60)) % 60;
@@ -97,28 +111,28 @@ String formatLyricDuration(Duration duration) {
 }
 
 /// Lyric part data
-class LyricPartData {
+class LyricsPartData {
   /// Duration at which the line should be displayed
   final Duration time;
 
   /// Text
-  final String content;
+  final String text;
 
   /// Constructor
-  LyricPartData({required this.time, required this.content});
+  LyricsPartData({required this.time, required this.text});
 
   @override
   String toString() {
-    return '<${formatLyricDuration(time)}>$content';
+    return '<${formatLyricsDuration(time)}>"$text"';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    if (other is! LyricPartData) return false;
-    return time == other.time && content == other.content;
+    if (other is! LyricsPartData) return false;
+    return time == other.time && text == other.text;
   }
 
   @override
-  int get hashCode => time.hashCode ^ content.hashCode;
+  int get hashCode => time.hashCode ^ text.hashCode;
 }

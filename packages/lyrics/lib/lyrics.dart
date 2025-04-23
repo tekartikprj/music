@@ -3,12 +3,12 @@
 /// More dartdocs go here.
 library;
 
-export 'src/lrc_parser.dart' show parseLyric, parseLyricDuration;
-export 'src/lyric.dart'
+export 'src/lrc_parser.dart' show parseLyricLrc, parseLyricDurationLrc;
+export 'src/lyrics.dart'
     show
-        LyricData,
-        LyricLineData,
-        LyricPartData,
-        LyricLineSingleContent,
-        LyricLineMultiContent,
-        LyricLineContent;
+        LyricsData,
+        LyricsLineData,
+        LyricsPartData,
+        LyricsLineSingleContent,
+        LyricsLineMultiContent,
+        LyricsLineContent;
