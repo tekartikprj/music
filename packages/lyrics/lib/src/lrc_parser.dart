@@ -6,33 +6,49 @@ import 'package:tekartik_common_utils/string_utils.dart';
 
 /// Parses a LRC lyric duration string and returns a [Duration] object.
 Duration? tryParseLyricDuration(String token) {
-  var filtered = token.split(']').first.split('>').first;
-  var minutes = filtered.split(':').first;
-  var secondsAndMillis = filtered.substring(minutes.length + 1);
-  var parts = secondsAndMillis.split('.');
-  var seconds = parts.first;
+  var filtered = token.splitFirst(']').first.splitFirst('>').first;
+  var minutesAndSecondsParts = filtered.splitFirst(':');
+  late String secondsAndMillis;
+  int? minutes;
+  if (minutesAndSecondsParts.length == 2) {
+    minutes = minutesAndSecondsParts.first.tryParseInt();
+    secondsAndMillis = minutesAndSecondsParts.last;
+  } else {
+    secondsAndMillis = filtered;
+  }
+  var parts = secondsAndMillis.splitFirst('.');
+  var secondsString = parts.first;
+
   var millis = 0;
-  if (parts.length > 1) {
-    var millisString = parts[1].trim();
-    var number = millisString.tryParseInt();
-    if (number != null) {
-      if (millisString.length == 1) {
-        millis = number * 100;
-      } else if (millisString.length == 2) {
-        millis = number * 10;
-      } else if (millisString.length == 3) {
-        millis = number;
+  if (parts.length == 2) {
+    var millisString = parts.last;
+
+    if (parts.length > 1) {
+      var number = millisString.tryParseInt();
+      if (number != null) {
+        if (millisString.length == 1) {
+          millis = number * 100;
+        } else if (millisString.length == 2) {
+          millis = number * 10;
+        } else if (millisString.length == 3) {
+          millis = number;
+        }
       }
     }
+  } else {
+    if (minutesAndSecondsParts.length == 1) {
+      /// Neither : nor ., stop
+      return null;
+    }
   }
-  var minutesInt = minutes.tryParseInt();
-  var secondsInt = seconds.tryParseInt();
-  if (minutesInt == null || secondsInt == null) {
+
+  var seconds = secondsString.tryParseInt();
+  if (seconds == null) {
     return null;
   }
   return Duration(
-    minutes: minutesInt,
-    seconds: secondsInt,
+    minutes: minutes ?? 0,
+    seconds: seconds,
     milliseconds: millis,
   );
 }

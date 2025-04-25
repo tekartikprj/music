@@ -1,11 +1,8 @@
 import 'package:tekaly_lyrics/example/lyrics_example.dart';
 import 'package:tekaly_lyrics/lyrics.dart';
 import 'package:tekaly_lyrics/src/lrc_parser.dart';
+import 'package:tekaly_lyrics/utils/duration_helper.dart';
 import 'package:test/test.dart';
-
-extension on int {
-  Duration get ms => Duration(milliseconds: this);
-}
 
 var lrcBasic1 = '''
 [ti: Somebody]
@@ -15,10 +12,13 @@ var lrcWord1 = '''
 [ti: Somebody]
 [00:00.02] <00:00.04>So<00:00.16>me <00:00.82> body<00:01.29>
 ''';
+
 void main() {
   group('Lyrics', () {
     test('time parser', () {
+      expect(parseLyricDurationLrc('00.10'), 100.ms);
       expect(parseLyricDurationLrc('00:41.50'), 41500.ms);
+      expect(parseLyricDurationLrc('00:41'), 41.s);
       expect(parseLyricDurationLrc('00:41.508'), 41508.ms);
     });
     test('Parser', () {
@@ -27,6 +27,7 @@ void main() {
       expect(data.title, 'Une souris verte (Word Timed)');
       expect(data.lines.length, 9);
     });
+
     test('lyric basic line', () {
       var data = parseLyricLrc(lrcBasic1);
       expect(data.artist, null);
@@ -48,6 +49,36 @@ void main() {
       expect(parts, hasLength(4));
       expect(parts[1].text, 'me');
       expect(parts[2].text, ' body');
+    });
+    test('Parse line basic', () {
+      var content = parseLyricLineContent(1.s, 'Hey');
+      expect(content.time, 1.s);
+      expect(content.text, 'Hey');
+      var parts = content.parts;
+      expect(parts, isEmpty);
+    });
+    test('Parse line timing', () {
+      var content = parseLyricLineContent(1.s, '<00:02>Hey');
+      expect(content.time, 1.s);
+      expect(content.text, 'Hey');
+      var parts = content.parts;
+      expect(parts, hasLength(1));
+      var part = parts.first;
+      expect(part.time, 2.s);
+      expect(part.text, 'Hey');
+    });
+    test('Parse end timing', () {
+      var content = parseLyricLineContent(1.s, 'Hey<00:02>');
+      expect(content.time, 1.s);
+      expect(content.text, 'Hey');
+      var parts = content.parts;
+      expect(parts, hasLength(2));
+      var part = parts.first;
+      expect(part.time, 1.s);
+      expect(part.text, 'Hey');
+      part = parts.last;
+      expect(part.time, 2.s);
+      expect(part.text, '');
     });
     test('parseSinglePart1', () {
       var line = parseLyricLine('00:00.01', 'text');

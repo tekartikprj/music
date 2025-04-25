@@ -86,6 +86,17 @@ class LyricsLineMultiContent extends LyricsLineContent {
 
 /// Lyric line data
 class LyricsLineData {
+  /// Parts of the line
+  List<LyricsPartData> get parts {
+    if (content is LyricsLineSingleContent) {
+      return [(content as LyricsLineSingleContent).part];
+    } else if (content is LyricsLineMultiContent) {
+      return (content as LyricsLineMultiContent).parts;
+    } else {
+      throw 'Unknown content type ${content.runtimeType}';
+    }
+  }
+
   /// Content of the line, if empty means the end of the line
   final LyricsLineContent content;
 
@@ -94,6 +105,9 @@ class LyricsLineData {
 
   /// Duration at which the line should be displayed
   Duration get time => content.time;
+
+  /// Text
+  String get text => content.text;
 
   @override
   String toString() => content.toString();
