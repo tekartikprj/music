@@ -98,15 +98,46 @@ class LocatedLyricsData {
     return LocatedLyricsDataItemRef(lastLineIndex, lastPartIndex);
   }
 
-  LocatedLyricsDataItemRef get _beforeRef {
-    return LocatedLyricsDataItemRef(-1, -1);
+  /// Get previous ref
+  LocatedLyricsDataItemRef getPreviousRef(LocatedLyricsDataItemRef ref) {
+    var lineIndex = ref.lineIndex;
+    if (lineIndex == -1) {
+      return LocatedLyricsDataItemRef.before();
+    }
+    var partIndex = ref.partIndex;
+    if (partIndex == -1) {
+      if (lineIndex == 0) {
+        return LocatedLyricsDataItemRef.before();
+      }
+      lineIndex--;
+      var beforeLine = lines[lineIndex];
+      return LocatedLyricsDataItemRef(lineIndex, beforeLine.parts.length - 1);
+    }
+    return LocatedLyricsDataItemRef(lineIndex, partIndex - 1);
+  }
+
+  /// Get next ref
+  LocatedLyricsDataItemRef getNextRef(LocatedLyricsDataItemRef ref) {
+    var lineIndex = ref.lineIndex;
+    if (lineIndex == -1) {
+      return LocatedLyricsDataItemRef(0, -1);
+    }
+    var partIndex = ref.partIndex;
+    var line = lines[lineIndex];
+    if (partIndex >= (line.parts.length - 1)) {
+      if (lineIndex == lines.length - 1) {
+        return _lastRef;
+      }
+      return LocatedLyricsDataItemRef(lineIndex + 1, -1);
+    }
+    return LocatedLyricsDataItemRef(lineIndex, partIndex + 1);
   }
 
   /// Locate item info by time
   LocatedLyricsDataItemInfo locateItemInfo(Duration time) {
     var lineIndex = _findLine(time);
     if (lineIndex < 0) {
-      return getItemInfo(_beforeRef);
+      return getItemInfo(LocatedLyricsDataItemRef.before());
     }
     if (lineIndex >= lines.length) {
       return getItemInfo(_lastRef);
@@ -164,7 +195,7 @@ class LocatedLyricsDataItemInfo {
   /// Index in the string line
   final int end;
 
-  /// text line
+  /// text part
   final String text;
 
   /// Constructor
@@ -177,13 +208,44 @@ class LocatedLyricsDataItemInfo {
 }
 
 /// Reference to the item
-class LocatedLyricsDataItemRef {
-  /// Line index
+class LocatedLyricsDataItemRef implements Comparable<LocatedLyricsDataItemRef> {
+  /// Line index (from -1)
   final int lineIndex;
 
-  /// Part index
+  /// Part index (from -1)
   final int partIndex;
+
+  /// Before the start
+  LocatedLyricsDataItemRef.before() : lineIndex = -1, partIndex = -1;
+
+  /// Before the line
+  LocatedLyricsDataItemRef.lineBefore(this.lineIndex) : partIndex = -1;
 
   /// Constructor
   LocatedLyricsDataItemRef(this.lineIndex, this.partIndex);
+
+  @override
+  String toString() {
+    return 'Ref($lineIndex, $partIndex)';
+  }
+
+  @override
+  int get hashCode => lineIndex.hashCode ^ partIndex.hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    if (other is LocatedLyricsDataItemRef) {
+      return other.lineIndex == lineIndex && other.partIndex == partIndex;
+    }
+    return false;
+  }
+
+  @override
+  int compareTo(LocatedLyricsDataItemRef other) {
+    var cmp = lineIndex.compareTo(other.lineIndex);
+    if (cmp != 0) {
+      return cmp;
+    }
+    return partIndex.compareTo(other.partIndex);
+  }
 }

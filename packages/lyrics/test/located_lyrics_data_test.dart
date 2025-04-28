@@ -4,6 +4,18 @@ import 'package:test/test.dart';
 
 void main() {
   group('located', () {
+    test('ref', () {
+      expect(LocatedLyricsDataItemRef(1, 2).toString(), 'Ref(1, 2)');
+      expect(LocatedLyricsDataItemRef(1, 2), LocatedLyricsDataItemRef(1, 2));
+      expect(
+        LocatedLyricsDataItemRef(1, 2),
+        isNot(LocatedLyricsDataItemRef(3, 2)),
+      );
+      expect(
+        LocatedLyricsDataItemRef(1, 2),
+        isNot(LocatedLyricsDataItemRef(1, 3)),
+      );
+    });
     test('basic', () {
       var data = parseLyricLrc('[00:00.04]Hey');
       var locatedData = LocatedLyricsData(lyricsData: data);
@@ -113,6 +125,54 @@ void main() {
       expect(info.ref.lineIndex, 1);
       expect(info.ref.partIndex, 0);
       expect(info.text, 'Joe');
+      expect(
+        locatedData.getPreviousRef(LocatedLyricsDataItemRef.before()),
+        LocatedLyricsDataItemRef.before(),
+      );
+      expect(
+        locatedData.getNextRef(LocatedLyricsDataItemRef.before()),
+        LocatedLyricsDataItemRef.lineBefore(0),
+      );
+      expect(
+        locatedData.getPreviousRef(LocatedLyricsDataItemRef.lineBefore(0)),
+        LocatedLyricsDataItemRef.before(),
+      );
+      expect(
+        locatedData.getNextRef(LocatedLyricsDataItemRef.lineBefore(0)),
+        LocatedLyricsDataItemRef(0, 0),
+      );
+      expect(
+        locatedData.getPreviousRef(LocatedLyricsDataItemRef(0, 0)),
+        LocatedLyricsDataItemRef.lineBefore(0),
+      );
+      expect(
+        locatedData.getNextRef(LocatedLyricsDataItemRef(0, 0)),
+        LocatedLyricsDataItemRef(0, 1),
+      );
+      expect(
+        locatedData.getPreviousRef(LocatedLyricsDataItemRef(0, 1)),
+        LocatedLyricsDataItemRef(0, 0),
+      );
+      expect(
+        locatedData.getNextRef(LocatedLyricsDataItemRef(0, 1)),
+        LocatedLyricsDataItemRef.lineBefore(1),
+      );
+      expect(
+        locatedData.getPreviousRef(LocatedLyricsDataItemRef.lineBefore(1)),
+        LocatedLyricsDataItemRef(0, 1),
+      );
+      expect(
+        locatedData.getNextRef(LocatedLyricsDataItemRef.lineBefore(1)),
+        LocatedLyricsDataItemRef(1, 0),
+      );
+      expect(
+        locatedData.getPreviousRef(LocatedLyricsDataItemRef(1, 0)),
+        LocatedLyricsDataItemRef.lineBefore(1),
+      );
+      expect(
+        locatedData.getNextRef(LocatedLyricsDataItemRef(1, 0)),
+        LocatedLyricsDataItemRef(1, 0),
+      );
     });
   });
 }
