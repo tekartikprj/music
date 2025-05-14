@@ -87,6 +87,9 @@ class LocatedLyricsData {
       if (time < line.time) {
         index--;
       }
+    } else {
+      /// neither after
+      index--;
     }
     return index;
   }

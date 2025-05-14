@@ -1,7 +1,7 @@
 import 'package:tekartik_common_utils/duration_utils.dart';
 
 /// Helper functions for duration
-extension TekartikLyricsIntExt on int {
+extension TekartikLyricsIntExt on num {
   /// Convert from minutes
   Duration get mn => minutes;
 

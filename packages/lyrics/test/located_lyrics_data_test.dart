@@ -174,5 +174,23 @@ void main() {
         LocatedLyricsDataItemRef(1, 0),
       );
     });
+    test('2 lines 2 parts each', () {
+      var data = parseLyricLrc('''
+      [00:00.00]Zero<00:01.00>One
+      [00:02.00]Two<00:03.00>Three  
+      ''');
+      var locatedData = LocatedLyricsData(lyricsData: data);
+      //locatedData.devDump();
+      expect(locatedData.lines, hasLength(2));
+      var info = locatedData.locateItemInfo(2.s);
+      expect(info.ref.lineIndex, 1);
+      expect(info.ref.partIndex, 0);
+      info = locatedData.locateItemInfo(2.1.s);
+      expect(info.ref.lineIndex, 1);
+      expect(info.ref.partIndex, 0);
+      info = locatedData.locateItemInfo(3.1.s);
+      expect(info.ref.lineIndex, 1);
+      expect(info.ref.partIndex, 1);
+    });
   });
 }
