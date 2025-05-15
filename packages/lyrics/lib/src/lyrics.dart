@@ -150,3 +150,40 @@ class LyricsPartData {
   @override
   int get hashCode => time.hashCode ^ text.hashCode;
 }
+
+/// Lyrics data extension
+extension LyricsDataExt on LyricsData {
+  /// Convert the lyrics data to LRC format
+  List<String> toLrcLines() {
+    var lines = <String>[];
+    for (var line in this.lines) {
+      lines.add(line.toLrcLine());
+    }
+    return lines;
+  }
+}
+
+/// Lyrics line data extension
+extension LyricsLineDataExt on LyricsLineData {
+  /// Convert the line to LRC format
+  String toLrcLine() {
+    var sb = StringBuffer();
+    sb.write('[${formatLyricsDuration(time)}]');
+    var first = true;
+    for (var part in parts) {
+      var partTime = part.time;
+      var skipTime = false;
+      if (first) {
+        if (partTime == time) {
+          skipTime = true;
+        }
+        first = false;
+      }
+      if (!skipTime) {
+        sb.write('<${formatLyricsDuration(partTime)}>');
+      }
+      sb.write(part.text);
+    }
+    return sb.toString();
+  }
+}
