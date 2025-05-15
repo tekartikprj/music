@@ -13,7 +13,7 @@ void main() {
       }
 
       testRoundTrip('[00:00.04]Some body');
-      testRoundTrip('[00:00.00]Zero<00:01.00>One');
+      testRoundTrip('[00:00.00]Zero <00:01.00>One');
       testRoundTrip('[00:00.00]<00:01.00>One<00:02.00>');
     });
   });

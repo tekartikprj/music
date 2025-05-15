@@ -144,6 +144,13 @@ class LyricsLineContentParserResult {
   });
 }
 
+class _RawPartData {
+  final String text;
+  final Duration time;
+
+  _RawPartData({required this.text, required this.time});
+}
+
 class _LyricsLineParser {
   LyricsLineContentParserResult parseLyricLineContent(
     Duration time,
@@ -152,8 +159,8 @@ class _LyricsLineParser {
     var lineTime = time;
     var current = line.trim();
     var fullLineSb = StringBuffer();
-    var parts = <LyricsPartData>[];
-    var needSpaceBefore = false;
+    var rawParts = <_RawPartData>[];
+
     var hasParts = false;
     while (true) {
       var result = findTime(current);
@@ -162,25 +169,23 @@ class _LyricsLineParser {
       void add(String text) {
         if (text.isNotEmpty) {
           if (text.trim().isEmpty) {
-            needSpaceBefore = true;
+            text = ' ';
           } else {
             text = text.trimLeft();
-            if (needSpaceBefore) {
-              text = ' $text';
-            }
-
-            /// next need space?
-            needSpaceBefore = text.endsWithWhitespaces();
+            var hasTrailingSpace = text.endsWithWhitespaces();
             text = text.trimRight();
+            if (hasTrailingSpace) {
+              text = '$text ';
+            }
             fullLineSb.write(text);
-            parts.add(LyricsPartData(time: time, text: text));
+            rawParts.add(_RawPartData(time: time, text: text));
             return;
           }
         }
 
         /// Don't add if same time than the line time
         if (time != lineTime) {
-          parts.add(LyricsPartData(time: time, text: text.trim()));
+          rawParts.add(_RawPartData(time: time, text: text.trim()));
         }
       }
 
@@ -188,7 +193,7 @@ class _LyricsLineParser {
         if (!hasParts) {
           return LyricsLineContentParserResult(
             time: time,
-            parts: parts,
+            parts: [],
             text: current,
           );
         } else {
@@ -203,6 +208,11 @@ class _LyricsLineParser {
       time = result.time!;
       current = result.next!;
     }
+    var parts =
+        rawParts
+            .map((raw) => LyricsPartData(time: raw.time, text: raw.text))
+            .toList();
+
     return LyricsLineContentParserResult(
       time: lineTime,
       parts: parts,

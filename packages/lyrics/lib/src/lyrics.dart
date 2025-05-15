@@ -13,12 +13,7 @@ class LyricsData {
   final List<LyricsLineData> lines;
 
   /// Constructor
-  LyricsData({
-    required this.title,
-    required this.artist,
-    required this.lines,
-    this.duration,
-  });
+  LyricsData({this.title, this.artist, required this.lines, this.duration});
 
   @override
   String toString() {

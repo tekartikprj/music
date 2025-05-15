@@ -47,8 +47,8 @@ void main() {
       expect(multiContent.text, 'Some body');
       var parts = multiContent.parts;
       expect(parts, hasLength(4));
-      expect(parts[1].text, 'me');
-      expect(parts[2].text, ' body');
+      expect(parts[1].text, 'me ');
+      expect(parts[2].text, 'body');
     });
     test('Parse line basic', () {
       var content = parseLyricLineContent(1.s, 'Hey');
@@ -170,8 +170,8 @@ void main() {
       expect(result.time, 10.ms);
       expect(result.text, 'When the');
       expect(result.parts, [
-        LyricsPartData(time: 40.ms, text: 'When'),
-        LyricsPartData(time: 160.ms, text: ' the'),
+        LyricsPartData(time: 40.ms, text: 'When '),
+        LyricsPartData(time: 160.ms, text: 'the'),
       ]);
     });
     test('parse endings', () {
@@ -182,6 +182,15 @@ void main() {
         LyricsPartData(time: 10.ms, text: 'the'),
         LyricsPartData(time: 40.ms, text: ''),
         LyricsPartData(time: 50.ms, text: ''),
+      ]);
+    });
+    test('space before', () {
+      var result = parseLyricLineContent(10.ms, 'the <00:00.04>space');
+      expect(result.time, 10.ms);
+      expect(result.text, 'the space');
+      expect(result.parts, [
+        LyricsPartData(time: 10.ms, text: 'the '),
+        LyricsPartData(time: 40.ms, text: 'space'),
       ]);
     });
     test('findTime', () {

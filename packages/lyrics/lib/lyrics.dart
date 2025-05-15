@@ -9,6 +9,7 @@ export 'src/lyrics.dart'
         LyricsData,
         LyricsDataExt,
         LyricsLineData,
+        LyricsLineDataExt,
         LyricsPartData,
         LyricsLineSingleContent,
         LyricsLineMultiContent,
