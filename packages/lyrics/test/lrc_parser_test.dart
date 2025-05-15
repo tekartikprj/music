@@ -203,5 +203,27 @@ void main() {
         ),
       );
     });
+    test('parse complex line', () {
+      var result = parseLyricLineContent(
+        10.ms,
+        'Prince <00:39.309>A<00:39.449>li, <00:39.839>fab<00:40.189>u<00:40.319>lous <00:40.649>he, <00:40.969>A<00:41.279>li <00:41.639>A<00:41.889>bab<00:42.659>wa<00:43.919>',
+      );
+      expect(result.text, 'Prince Ali, fabulous he, Ali Ababwa');
+      expect(result.parts.map((p) => p.text), [
+        'Prince ',
+        'A',
+        'li, ',
+        'fab',
+        'u',
+        'lous ',
+        'he, ',
+        'A',
+        'li ',
+        'A',
+        'bab',
+        'wa',
+        '',
+      ]);
+    });
   });
 }
