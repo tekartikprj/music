@@ -156,6 +156,26 @@ extension LyricsDataExt on LyricsData {
     }
     return lines;
   }
+
+  /// Extract a portion of the lyrics data
+  LyricsData extractFromTo({Duration? from, Duration? to}) {
+    var newLines = <LyricsLineData>[];
+    var startDone = from == null;
+
+    for (var line in lines) {
+      if (!startDone) {
+        if (line.time < from!) {
+          continue;
+        }
+        startDone = true;
+      }
+      if (to != null && line.time > to) {
+        break;
+      }
+      newLines.add(line);
+    }
+    return LyricsData(lines: newLines);
+  }
 }
 
 /// Lyrics line data extension

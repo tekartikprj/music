@@ -16,5 +16,20 @@ void main() {
       testRoundTrip('[00:00.00]Zero <00:01.00>One');
       testRoundTrip('[00:00.00]<00:01.00>One<00:02.00>');
     });
+    test('extractFromTo', () {
+      var data = parseLyricLrc('''
+      [00:00.00]Zero
+      [00:01.00]One
+      [00:02.00]Two<00:03.00>Three
+      ''');
+      expect(
+        data.extractFromTo(from: const Duration(seconds: 1)).toLrcLines(),
+        ['[00:01.00]One', '[00:02.00]Two<00:03.00>Three'],
+      );
+      expect(data.extractFromTo(to: const Duration(seconds: 1)).toLrcLines(), [
+        '[00:00.00]Zero',
+        '[00:01.00]One',
+      ]);
+    });
   });
 }
