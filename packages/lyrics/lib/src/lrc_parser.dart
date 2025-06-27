@@ -208,10 +208,9 @@ class _LyricsLineParser {
       time = result.time!;
       current = result.next!;
     }
-    var parts =
-        rawParts
-            .map((raw) => LyricsPartData(time: raw.time, text: raw.text))
-            .toList();
+    var parts = rawParts
+        .map((raw) => LyricsPartData(time: raw.time, text: raw.text))
+        .toList();
 
     return LyricsLineContentParserResult(
       time: lineTime,

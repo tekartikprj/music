@@ -12,8 +12,10 @@ bool _isChordLine(String line) {
       .split(' ')
       .map((e) => e.trim())
       .where((element) => element.isNotEmpty);
-  var chords =
-      elements.map((element) => tryParseChord(element)).nonNulls.toList();
+  var chords = elements
+      .map((element) => tryParseChord(element))
+      .nonNulls
+      .toList();
   if (chords.isNotEmpty) {
     if (elements.length >= 2) {
       // At least 50M
