@@ -12,11 +12,9 @@ dependencies:
   tekartik_common_utils:
     git:
       url: https://github.com/tekartik/common_utils.dart
-      ref: dart3a
   tekartik_midi:
     git:
       url: https://github.com/tekartik/midi.dart
-      ref: dart3a
   # path: ^1.8.0
 
 dev_dependencies:

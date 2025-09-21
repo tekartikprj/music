@@ -12,12 +12,10 @@ dependencies:
   tekartik_common_utils:
     git:
       url: https://github.com/tekartik/common_utils.dart
-      ref: dart3a
     version: '>=0.15.2'
   tekaly_music_note:
     git:
       url: https://github.com/tekartikprj/music
-      ref: dart3a
       path: packages/music_note
     version: '>=0.1.0'
 dev_dependencies:
