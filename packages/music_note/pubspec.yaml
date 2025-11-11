@@ -8,11 +8,11 @@ environment:
 
 # Add regular dependencies here.
 dependencies:
-  collection: ">=1.18.0"
+  collection: ">=1.19.1"
 
 dev_dependencies:
-  lints: ">=5.0.0"
-  test: '>=1.24.0'
+  lints: ">=6.0.0"
+  test: ">=1.26.3"
   tekartik_lints:
     git:
       url: https://github.com/tekartik/common.dart
