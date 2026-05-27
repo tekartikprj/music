@@ -88,7 +88,7 @@ class LyricsLineData {
     } else if (content is LyricsLineMultiContent) {
       return (content as LyricsLineMultiContent).parts;
     } else {
-      throw 'Unknown content type ${content.runtimeType}';
+      throw StateError('Unknown content type ${content.runtimeType}');
     }
   }
 

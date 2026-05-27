@@ -47,7 +47,7 @@ class Key extends SemitonesBase {
       case 11:
         return b;
       default:
-        throw 'bad usage key must be non altered';
+        throw StateError('bad usage key must be non altered');
     }
   }
 
