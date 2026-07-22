@@ -1,6 +1,4 @@
-/// Support for doing something awesome.
-///
-/// More dartdocs go here.
+/// Lyrics parsing, model, and playback support (LRC format).
 library;
 
 export 'src/lrc_parser.dart' show parseLyricLrc, parseLyricDurationLrc;

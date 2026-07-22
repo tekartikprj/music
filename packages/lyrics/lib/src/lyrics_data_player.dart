@@ -102,7 +102,7 @@ class LyricsDataPlayerBase implements LyricsDataPlayer {
     // print('text: $text');
   }
 
-  /// Constructor
+  /// Creates a [LyricsDataPlayerBase] instance.
   LyricsDataPlayerBase() {
     _midiPlayer = _LyricsMidiPlayer(
       playEventCallback: (event) {

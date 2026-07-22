@@ -10,7 +10,7 @@ class LocatedLyricsDataLine {
   /// located parts
   final parts = <LocatedLyricsDataPart>[];
 
-  /// Constructor
+  /// Creates a [LocatedLyricsDataLine] with the given [lineData].
   LocatedLyricsDataLine({required this.lineData}) {
     var rawParts = lineData.parts;
     var start = 0;
@@ -39,7 +39,7 @@ class LocatedLyricsDataPart {
   /// End index in the string line
   int get end => start + partData.text.length;
 
-  /// Constructor
+  /// Creates a [LocatedLyricsDataPart] with [partData] and [start] index.
   LocatedLyricsDataPart({required this.partData, required this.start});
 
   /// Part time
@@ -166,7 +166,7 @@ class LocatedLyricsData {
     return getItemInfo(ref);
   }
 
-  /// Constructor
+  /// Creates a [LocatedLyricsData] from the provided [lyricsData].
   LocatedLyricsData({required LyricsData lyricsData}) {
     for (var line in lyricsData.lines) {
       lines.add(LocatedLyricsDataLine(lineData: line));
@@ -201,7 +201,7 @@ class LocatedLyricsDataItemInfo {
   /// text part
   final String text;
 
-  /// Constructor
+  /// Creates a [LocatedLyricsDataItemInfo] with [ref], [start], [end], and [text].
   LocatedLyricsDataItemInfo({
     required this.ref,
     required this.start,
@@ -224,7 +224,7 @@ class LocatedLyricsDataItemRef implements Comparable<LocatedLyricsDataItemRef> {
   /// Before the line
   LocatedLyricsDataItemRef.lineBefore(this.lineIndex) : partIndex = -1;
 
-  /// Constructor
+  /// Creates a [LocatedLyricsDataItemRef] with [lineIndex] and [partIndex].
   LocatedLyricsDataItemRef(this.lineIndex, this.partIndex);
 
   @override

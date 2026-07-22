@@ -12,7 +12,7 @@ class LyricsData {
   /// Lines of the lyric
   final List<LyricsLineData> lines;
 
-  /// Constructor
+  /// Creates a [LyricsData] instance with optional [title], [artist], [duration], and required [lines].
   LyricsData({this.title, this.artist, required this.lines, this.duration});
 
   @override
@@ -29,7 +29,7 @@ abstract class LyricsLineContent {
   /// The text of the line
   String get text;
 
-  /// Constructor
+  /// Creates a [LyricsLineContent] with display [time].
   LyricsLineContent({required this.time});
 }
 
@@ -42,7 +42,7 @@ class LyricsLineSingleContent extends LyricsLineContent {
   @override
   String get text => part.text;
 
-  /// Constructor
+  /// Creates a [LyricsLineSingleContent] with display [time] and line [part].
   LyricsLineSingleContent({required super.time, required this.part});
 
   @override
@@ -56,7 +56,7 @@ class LyricsLineMultiContent extends LyricsLineContent {
   /// Content of the line
   final List<LyricsPartData> parts;
 
-  /// Constructor
+  /// Creates a [LyricsLineMultiContent] with display [time], line [parts], and full [text].
   LyricsLineMultiContent({
     required super.time,
     required this.parts,
@@ -95,7 +95,7 @@ class LyricsLineData {
   /// Content of the line, if empty means the end of the line
   final LyricsLineContent content;
 
-  /// Constructor
+  /// Creates a [LyricsLineData] with the given line [content].
   LyricsLineData({required this.content});
 
   /// Duration at which the line should be displayed
@@ -108,7 +108,7 @@ class LyricsLineData {
   String toString() => content.toString();
 }
 
-/// Lyric part data
+/// Formats a [duration] as a `MM:SS.mm` string representation for LRC lyrics.
 String formatLyricsDuration(Duration duration) {
   var milliseconds = duration.inMilliseconds;
   var seconds = (milliseconds ~/ 1000) % 60;
@@ -127,7 +127,7 @@ class LyricsPartData {
   /// Text
   final String text;
 
-  /// Constructor
+  /// Creates a [LyricsPartData] with display [time] and [text].
   LyricsPartData({required this.time, required this.text});
 
   @override
@@ -148,7 +148,7 @@ class LyricsPartData {
 
 /// Lyrics data extension
 extension LyricsDataExt on LyricsData {
-  /// Convert the lyrics data to LRC format
+  /// Converts the lyrics data to a list of LRC formatted lines.
   List<String> toLrcLines() {
     var lines = <String>[];
     for (var line in this.lines) {
@@ -157,7 +157,7 @@ extension LyricsDataExt on LyricsData {
     return lines;
   }
 
-  /// Extract a portion of the lyrics data
+  /// Extracts a portion of the lyrics data between optional [from] and [to] durations.
   LyricsData extractFromTo({Duration? from, Duration? to}) {
     var newLines = <LyricsLineData>[];
     var startDone = from == null;
@@ -180,7 +180,7 @@ extension LyricsDataExt on LyricsData {
 
 /// Lyrics line data extension
 extension LyricsLineDataExt on LyricsLineData {
-  /// Convert the line to LRC format
+  /// Converts the line data to an LRC formatted line string.
   String toLrcLine() {
     var sb = StringBuffer();
     sb.write('[${formatLyricsDuration(time)}]');

@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:tekaly_music_note/music_note.dart';
 
-/// Text convert helpers
+/// Converts plain [text] containing song lyrics and chords into a ChordPro formatted string.
+///
+/// Returns the generated ChordPro formatted text string.
 String textToChordPro(String text) {
   return textLinesToChordProLines(LineSplitter.split(text).toList()).join('\n');
 }
@@ -32,7 +34,9 @@ String _chordLineToChordProLine(String line) {
   return sb.toString();
 }
 
-/// Convert text lines to chordpro lines
+/// Converts a list of text [lines] containing lyrics and chords into a list of ChordPro formatted line strings.
+///
+/// Returns a list of ChordPro line strings.
 List<String> textLinesToChordProLines(List<String> lines) {
   var result = <String>[];
   String? sectionType;

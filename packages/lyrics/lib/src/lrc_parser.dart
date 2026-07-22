@@ -136,7 +136,7 @@ class LyricsLineContentParserResult {
   /// The time of the line
   final Duration time;
 
-  /// Constructor
+  /// Creates a [LyricsLineContentParserResult] with required [parts], [text], and [time].
   LyricsLineContentParserResult({
     required this.parts,
     required this.text,
@@ -263,7 +263,7 @@ class FindTimeResult {
   /// The remaining content after the time tag.
   final String? next;
 
-  /// Constructor
+  /// Creates a [FindTimeResult] with optional [index], [next], and [time].
   FindTimeResult({this.index, this.next, this.time});
 
   @override
