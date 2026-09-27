@@ -6,3 +6,7 @@ workspace:
   - packages/chordpro
   - packages/music_note
   - packages/lyrics
+  - packages/lyrics_core
+  - packages_flutter/lyrics_view
+  - packages_flutter/lyrics_editor
+  - apps/lyrics_editor_app

@@ -10,3 +10,9 @@
 /chordelio_flutter/support/pubspec_overrides.yaml
 /.dart_tool/
 /pubspec.lock
+.*
+!.gitignore
+/apps/lyrics_editor_app/web/
+/apps/lyrics_editor_app/windows/
+/apps/lyrics_editor_app/macos/
+/apps/lyrics_editor_app/linux/

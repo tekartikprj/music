@@ -1,0 +1,35 @@
+name: tekaly_lyrics_editor
+description: >-
+  The lyrics editor widgets: timing by tapping along (syllable, word, line,
+  page), text with chords, latency calibration, preview. Any player
+  (LyricsPlayer), any storage (LyricsEditorStore).
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.12.0
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  tekaly_lyrics_view:
+    git:
+      url: https://github.com/tekartikprj/music
+      path: packages_flutter/lyrics_view
+    version: '>=0.1.0'
+  tekaly_file_picker:
+    git:
+      url: https://github.com/tekartikprj/tekaly
+      path: packages/file_picker
+    version: '>=0.2.0'
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  tekartik_lints_flutter:
+    git:
+      url: https://github.com/tekartik/common_flutter.dart
+      path: packages/lints_flutter
+
+resolution: workspace

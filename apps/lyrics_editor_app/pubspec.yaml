@@ -1,0 +1,76 @@
+name: lyrics_editor_app
+description: >-
+  Lyrics editor: open a lyrics file and its media, time the lyrics by tapping
+  along (syllable, word, line, page), add chords, save as LRC, text or the
+  native format. No account, no server.
+publish_to: none
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.12.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  path: ">=1.9.1"
+  cupertino_icons: ">=1.0.8"
+  tekaly_lyrics_editor:
+    git:
+      url: https://github.com/tekartikprj/music
+      path: packages_flutter/lyrics_editor
+    version: '>=0.1.0'
+  tekaly_lyrics_core:
+    git:
+      url: https://github.com/tekartikprj/music
+      path: packages/lyrics_core
+    version: '>=0.1.0'
+  tekaly_file_picker:
+    git:
+      url: https://github.com/tekartikprj/tekaly
+      path: packages/file_picker
+    version: '>=0.2.0'
+  tekaly_file_picker_flutter:
+    git:
+      url: https://github.com/tekartikprj/tekaly
+      path: flutter_packages/file_picker_flutter
+  # Local and remote audio files: just_audio (mpv on Linux).
+  playlr_audio_player:
+    git:
+      url: https://github.com/tekaly/playlr.git
+      path: packages_flutter/playlr_audio_player
+  playlr_audio_player_just_audio:
+    git:
+      url: https://github.com/tekaly/playlr.git
+      path: packages_flutter/playlr_audio_player_just_audio
+  just_audio_mpv: ">=0.1.7"
+  just_audio_windows: ">=0.2.3"
+  # YouTube links: the iframe on the web, media_kit elsewhere.
+  festenao_youtube_player:
+    git:
+      url: https://github.com/tekaly/festenao
+      path: packages_flutter/festenao_youtube_player
+  # Drafts, recent documents and settings.
+  tekartik_app_flutter_idb:
+    git:
+      url: https://github.com/tekartik/app_flutter_utils.dart
+      path: app_idb
+  desktop_drop: ">=0.5.0"
+  # The user's files on desktop (io), a memory file system in the tests.
+  fs_shim: ">=2.5.0"
+  idb_shim: ">=2.9.6+1"
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  tekartik_lints_flutter:
+    git:
+      url: https://github.com/tekartik/common_flutter.dart
+      path: packages/lints_flutter
+
+flutter:
+  uses-material-design: true
+  assets:
+    # Sample songs (lib/src/samples, tool/generate_samples.dart).
+    - assets/samples/
+
+resolution: workspace
