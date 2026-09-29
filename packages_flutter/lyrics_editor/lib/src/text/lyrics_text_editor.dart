@@ -166,13 +166,17 @@ class LyricsTextController extends ChangeNotifier {
     return imported;
   }
 
-  /// Pick a lyrics file and import it, null when cancelled.
-  Future<LyricsImport?> importFile(BuildContext context) async {
+  /// Pick a lyrics file (of the [allowedExtensions]) and import it, null
+  /// when cancelled.
+  Future<LyricsImport?> importFile(
+    BuildContext context, {
+    List<String> allowedExtensions = lyricsFileExtensions,
+  }) async {
     if (!await confirmReplace(context)) {
       return null;
     }
     var file = await tekalyFilePicker.pickCustomFile(
-      allowedExtensions: lyricsFileExtensions,
+      allowedExtensions: allowedExtensions,
       dialogTitle: 'Lyrics file',
     );
     if (file == null || !context.mounted) {
@@ -247,8 +251,16 @@ class LyricsTextEditor extends StatelessWidget {
   /// The controller.
   final LyricsTextController controller;
 
+  /// The help shown under the status ([lyricsTextHelp] by default; a host
+  /// offering fewer formats says so here).
+  final String help;
+
   /// The text editor body.
-  const LyricsTextEditor({super.key, required this.controller});
+  const LyricsTextEditor({
+    super.key,
+    required this.controller,
+    this.help = lyricsTextHelp,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -258,7 +270,7 @@ class LyricsTextEditor extends StatelessWidget {
           listenable: controller,
           builder: (context, _) => ListTile(
             title: Text(controller.status),
-            subtitle: const Text(lyricsTextHelp),
+            subtitle: Text(help),
             isThreeLine: true,
           ),
         ),
@@ -288,15 +300,24 @@ class LyricsTextImportButton extends StatelessWidget {
   /// The controller.
   final LyricsTextController controller;
 
+  /// The file extensions offered ([lyricsFileExtensions] by default).
+  final List<String> allowedExtensions;
+
   /// Import a lyrics file.
-  const LyricsTextImportButton({super.key, required this.controller});
+  const LyricsTextImportButton({
+    super.key,
+    required this.controller,
+    this.allowedExtensions = lyricsFileExtensions,
+  });
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
       tooltip: 'Import a file',
       icon: const Icon(Icons.file_open),
-      onPressed: () => unawaited(controller.importFile(context)),
+      onPressed: () => unawaited(
+        controller.importFile(context, allowedExtensions: allowedExtensions),
+      ),
     );
   }
 }
