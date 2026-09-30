@@ -124,6 +124,52 @@ void main() {
       );
       expect(parseLrcLyrics(text).lyrics.toMap(), lyrics.toMap());
     });
+    test('syllables: | splits a word, written back for an edit', () {
+      var lyrics = parseLrcLyrics('''
+[00:01.000]Ka|ra|o|ke
+[00:02.000]Vrai|ment très peu|
+[00:03.000]
+''').lyrics;
+      var lines = lyrics.lineList;
+      expect(partTexts(lines[0]), ['Ka', 'ra', 'o', 'ke']);
+      expect(lines[0].partList.map((part) => part.isJoined), [
+        true,
+        true,
+        true,
+        false,
+      ]);
+      expect(lines[0].startMs.v, 1000);
+      expect(partStarts(lines[0]), [null, null, null, null]);
+      expect(lines[0].text, 'Karaoke');
+      expect(partTexts(lines[1]), ['Vrai', 'ment', 'très', 'peu']);
+      expect(lines[1].partList[0].isJoined, isTrue);
+      expect(lines[1].partList[1].isJoined, isFalse);
+      expect(lines[1].partList[3].isJoined, isFalse);
+      expect(lines[1].startMs.v, 2000);
+      expect(lines[1].endMs.v, 3000);
+      // The export writes the words, the editing text keeps the syllables.
+      expect(formatLrcLyrics(lyrics), '''
+[00:01.000]Karaoke
+[00:02.000]Vraiment très peu
+[00:03.000]
+''');
+      var editing = formatLrcLyrics(lyrics, syllables: true);
+      expect(editing, '''
+[00:01.000]Ka|ra|o|ke
+[00:02.000]Vrai|ment très peu
+[00:03.000]
+''');
+      expect(parseLrcLyrics(editing).lyrics.toMap(), lyrics.toMap());
+      // A timed syllable needs no |, an untimed one after it does.
+      var timed = parseLrcLyrics(karakelioLrc).lyrics;
+      timed.lineList[0].partList[6].startMs.v = null;
+      editing = formatLrcLyrics(timed, syllables: true);
+      expect(
+        editing,
+        contains('<00:42.348>ê-|tre <00:42.708>heu-<00:42.958>reux'),
+      );
+      expect(parseLrcLyrics(editing).lyrics.toMap(), timed.toMap());
+    });
     test('line timing only exports the end as an empty line', () {
       var lyrics = CvLyrics.of([
         CvLyricsLine.of(
@@ -330,6 +376,51 @@ five
       );
       expect(merged.lineList[1].startMs.v, 2000);
       expect(partStarts(merged.lineList[1]), [null, null, null]);
+    });
+    test('extras: chords, sections and page times across an LRC edit', () {
+      var previous = parseLyricsText('''
+[Verse]
+[C]one [G]two
+three
+
+[Chorus]
+four
+''').lyrics;
+      previous.lineList[2].pageMs.v = 3500;
+      // The LRC edited: times added, the second line changed, a line added.
+      var edited = parseLrcLyrics('''
+[00:01.000]one two
+[00:02.000]THREE
+
+[00:04.000]four
+[00:05.000]five
+''').lyrics;
+      var merged = mergeLyricsExtras(previous, edited);
+      var lines = merged.lineList;
+      expect(lines.map((line) => line.text), [
+        'one two',
+        'THREE',
+        'four',
+        'five',
+      ]);
+      expect(lines.map((line) => line.startMs.v), [1000, 2000, 4000, 5000]);
+      expect(lines[0].partList.map((part) => part.chord.v), ['C', 'G']);
+      expect(lines.map((line) => line.section.v), [
+        'Verse',
+        'Verse',
+        'Chorus',
+        null,
+      ]);
+      expect(lines[2].pageMs.v, 3500);
+      // Chords typed in the LRC win over the previous ones.
+      merged = mergeLyricsExtras(
+        previous,
+        parseLyricsText('[Am]one two\nthree\n\nfour').lyrics,
+      );
+      expect(merged.lineList[0].partList.map((part) => part.chord.v), [
+        'Am',
+        null,
+      ]);
     });
   });
 }

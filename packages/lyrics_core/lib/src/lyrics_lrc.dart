@@ -12,7 +12,9 @@
 ///   then repeated;
 /// - `<time>` tags time the parts; no space between two parts means they are
 ///   syllables of the same word ([CvLyricsPart.join]), the text itself (a
-///   karaoke hyphen included) is kept as is;
+///   karaoke hyphen included) is kept as is; `|` inside a word splits it in
+///   syllables too (the editing convention of the text format, not shown),
+///   for the syllables not timed yet;
 /// - an empty `<time>` at the end of a line is the line end, in the middle
 ///   the end of the part before it;
 /// - an empty timed line (`[00:46.000]`) ends the line before it;
@@ -89,17 +91,25 @@ final _endsWithSpaceRegExp = RegExp(r'\s$');
       parts.last.join.v = null;
     }
     var words = raw.trim().split(RegExp(r'\s+'));
+    var first = true;
     for (var w = 0; w < words.length; w++) {
-      var part = CvLyricsPart.of(
-        words[w],
-        startMs: w == 0 ? segment.time : null,
-      );
-      var last = w == words.length - 1;
-      if (last && !_endsWithSpaceRegExp.hasMatch(raw)) {
-        // Joined to the next segment, unless it starts with a space.
-        part.join.v = true;
+      // `|` splits a word in syllables (joined parts).
+      var syllables = words[w].split('|').where((s) => s.isNotEmpty).toList();
+      for (var y = 0; y < syllables.length; y++) {
+        var part = CvLyricsPart.of(
+          syllables[y],
+          startMs: first ? segment.time : null,
+        );
+        first = false;
+        if (y < syllables.length - 1) {
+          part.join.v = true;
+        } else if (w == words.length - 1 &&
+            !_endsWithSpaceRegExp.hasMatch(raw)) {
+          // Joined to the next segment, unless it starts with a space.
+          part.join.v = true;
+        }
+        parts.add(part);
       }
-      parts.add(part);
     }
   }
   if (parts.isNotEmpty) {
@@ -252,11 +262,20 @@ String _lrcTime(int ms) {
 
 /// Format [lyrics] as enhanced LRC, times with milliseconds.
 ///
-/// The offset is applied (no `[offset]` tag), chords and sections are not
-/// written, pages become empty lines. A line timed to its parts gets
-/// `<time>` tags and its end as a trailing tag; a line timed by its start
-/// only gets its end as an empty timed line.
-String formatLrcLyrics(CvLyrics lyrics, {String? title, String? artist}) {
+/// The offset is applied (no `[offset]` tag), chords, sections and page
+/// times are not written, pages become empty lines. A line timed to its
+/// parts gets `<time>` tags and its end as a trailing tag; a line timed by
+/// its start only gets its end as an empty timed line.
+///
+/// [syllables] writes `|` between the syllables of a word that no `<time>`
+/// tag separates (the ones not timed yet), so that an edit of the LRC text
+/// keeps them ([parseLrcLyrics] reads it back); off for an export.
+String formatLrcLyrics(
+  CvLyrics lyrics, {
+  String? title,
+  String? artist,
+  bool syllables = false,
+}) {
   var sb = StringBuffer();
   if (title != null) {
     sb.writeln('[ti:$title]');
@@ -305,8 +324,14 @@ String formatLrcLyrics(CvLyrics lyrics, {String? title, String? artist}) {
           continue;
         }
       }
-      if (p < parts.length - 1 && !part.isJoined) {
-        sb.write(' ');
+      if (p < parts.length - 1) {
+        if (!part.isJoined) {
+          sb.write(' ');
+        } else if (syllables &&
+            !(withParts && parts[p + 1].startMs.v != null)) {
+          // Nothing else tells the syllables apart.
+          sb.write('|');
+        }
       }
     }
     var end = off(line.endMs.v);

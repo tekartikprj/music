@@ -8,7 +8,8 @@
 ///   timing editor (tap along, to the syllable, the word, the line or the
 ///   page).
 /// - [LyricsTextEditor], [LyricsTextController]: the text (typed, pasted,
-///   imported; exported as LRC or text).
+///   imported; exported as LRC or text), or the LRC itself
+///   ([LyricsTextFormat.lrc]).
 /// - [LyricsLatencySettings]: the tap and audio latencies, with a
 ///   calibration.
 /// - [LyricsTransportBar], [LyricsKaraokePreview]: the transport and the
@@ -47,10 +48,12 @@ export 'src/text/lyrics_text_editor.dart'
     show
         LyricsTextController,
         LyricsTextEditor,
+        LyricsTextFormat,
         LyricsTextImportButton,
         LyricsTextMenuButton,
         lyricsFileBaseName,
         lyricsFileExtensions,
+        lyricsLrcHelp,
         lyricsTextHelp;
 export 'src/timing/lyrics_timing_editor.dart'
     show

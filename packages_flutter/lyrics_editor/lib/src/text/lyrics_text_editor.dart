@@ -5,6 +5,11 @@
 /// line for a new page, `|` between syllables, `[C]` chords); the times are
 /// not part of it and are kept across the edit (`mergeLyricsTiming`).
 /// Pasting a whole LRC or subtitles file imports it with its times.
+///
+/// Or, in the LRC mode ([LyricsTextFormat.lrc]), the text is the LRC itself,
+/// its times included (`|` still splits the syllables not timed yet); what
+/// an LRC cannot say (chords, sections, page times) is kept across the edit
+/// (`mergeLyricsExtras`).
 library;
 
 import 'dart:async';
@@ -26,6 +31,24 @@ One line per lyrics line, a blank line starts a new page.
 [Chorus] alone on a line names the section up to the next blank line.
 Pasting a whole LRC, SRT or WebVTT file imports it with its times.''';
 
+/// What the LRC format is, for the help of the LRC mode.
+const lyricsLrcHelp = '''
+[mm:ss.xx] before a line: when it starts; alone on a line: when the line before ends.
+<mm:ss.xx> inside a line: when the word or syllable after it starts.
+| splits the syllables of a word: ê|tre heu|reux (not shown).
+A blank line starts a new page. A line without a time is kept, to be timed.''';
+
+/// What the text of the editor is written and read in.
+enum LyricsTextFormat {
+  /// The lyrics text format (`|` syllables, `[C]` chords, sections): the
+  /// times are not part of the text and are kept across the edit.
+  text,
+
+  /// LRC: the times are part of the text (`|` splits the syllables not timed
+  /// yet); chords, sections and page times are kept across the edit.
+  lrc,
+}
+
 /// The extensions of the lyrics files the editor imports.
 const lyricsFileExtensions = [
   'lrc',
@@ -39,10 +62,14 @@ const lyricsFileExtensions = [
 ];
 
 /// The state of the text editor: the text, and the lyrics it started from
-/// (their times are what [lyricsOfText] keeps).
+/// (their times are what [lyricsOfText] keeps in the text format, their
+/// chords in the LRC one).
 class LyricsTextController extends ChangeNotifier {
   /// The text.
   final text = TextEditingController();
+
+  /// What the text is written and read in.
+  final LyricsTextFormat format;
 
   /// The lyrics the text started from (loaded or imported).
   CvLyrics? base;
@@ -64,11 +91,23 @@ class LyricsTextController extends ChangeNotifier {
 
   var _settingText = false;
 
-  /// The text of [lyrics].
-  LyricsTextController({CvLyrics? lyrics, this.sourceName}) {
+  /// The text of [lyrics], in the text [format].
+  LyricsTextController({
+    CvLyrics? lyrics,
+    this.sourceName,
+    this.format = LyricsTextFormat.text,
+  }) {
     reset(lyrics);
     text.addListener(_onText);
   }
+
+  /// True in the LRC mode.
+  bool get isLrc => format == LyricsTextFormat.lrc;
+
+  /// [lyrics] written in the [format].
+  String formatLyrics(CvLyrics lyrics) => isLrc
+      ? formatLrcLyrics(lyrics, syllables: true)
+      : formatLyricsText(lyrics);
 
   void _onText() {
     if (!_settingText && !dirty) {
@@ -86,22 +125,45 @@ class LyricsTextController extends ChangeNotifier {
   /// Start again from [lyrics] (loaded or saved): not dirty.
   void reset(CvLyrics? lyrics) {
     base = lyrics;
-    _setText(lyrics == null ? '' : formatLyricsText(lyrics));
+    _setText(lyrics == null ? '' : formatLyrics(lyrics));
     dirty = false;
     notifyListeners();
   }
 
-  /// What the text says, with the times of [base] where they still apply,
-  /// or an import when it is a whole LRC/subtitles file.
+  /// What the text says.
+  ///
+  /// In the text format, with the times of [base] where they still apply,
+  /// or an import when it is a whole LRC/subtitles file. In the LRC mode,
+  /// the times are the ones of the text (plain lines are untimed), the
+  /// chords, sections and page times of [base] kept where they still apply.
+  /// A `[ti:]` or `[ar:]` tag of the text is noted in [importedTitle] and
+  /// [importedArtist].
   CvLyrics lyricsOfText() {
     var content = text.text;
     var format = detectLyricsFormat(content);
+    var base = this.base;
+    if (isLrc) {
+      var imported = importLyrics(content, format: format);
+      _noteTags(imported);
+      var edited = imported.lyrics;
+      return base == null ? edited : mergeLyricsExtras(base, edited);
+    }
     if (format != LyricsFormat.text) {
-      return importLyrics(content, format: format).lyrics;
+      var imported = importLyrics(content, format: format);
+      _noteTags(imported);
+      return imported.lyrics;
     }
     var edited = parseLyricsText(content).lyrics;
-    var base = this.base;
     return base == null ? edited : mergeLyricsTiming(base, edited);
+  }
+
+  void _noteTags(LyricsImport imported) {
+    if (imported.title != null) {
+      importedTitle = imported.title;
+    }
+    if (imported.artist != null) {
+      importedArtist = imported.artist;
+    }
   }
 
   /// The text replaced by [imported], its times kept.
@@ -111,7 +173,7 @@ class LyricsTextController extends ChangeNotifier {
     this.sourceId = sourceId;
     importedTitle = imported.title;
     importedArtist = imported.artist;
-    _setText(formatLyricsText(imported.lyrics));
+    _setText(formatLyrics(imported.lyrics));
     dirty = true;
     notifyListeners();
   }
@@ -251,16 +313,13 @@ class LyricsTextEditor extends StatelessWidget {
   /// The controller.
   final LyricsTextController controller;
 
-  /// The help shown under the status ([lyricsTextHelp] by default; a host
-  /// offering fewer formats says so here).
-  final String help;
+  /// The help shown under the status ([lyricsTextHelp] by default,
+  /// [lyricsLrcHelp] in the LRC mode; a host offering fewer formats says so
+  /// here).
+  final String? help;
 
   /// The text editor body.
-  const LyricsTextEditor({
-    super.key,
-    required this.controller,
-    this.help = lyricsTextHelp,
-  });
+  const LyricsTextEditor({super.key, required this.controller, this.help});
 
   @override
   Widget build(BuildContext context) {
@@ -270,7 +329,9 @@ class LyricsTextEditor extends StatelessWidget {
           listenable: controller,
           builder: (context, _) => ListTile(
             title: Text(controller.status),
-            subtitle: Text(help),
+            subtitle: Text(
+              help ?? (controller.isLrc ? lyricsLrcHelp : lyricsTextHelp),
+            ),
             isThreeLine: true,
           ),
         ),
@@ -283,9 +344,11 @@ class LyricsTextEditor extends StatelessWidget {
               expands: true,
               textAlignVertical: TextAlignVertical.top,
               style: const TextStyle(fontFamily: 'monospace'),
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Type or paste the lyrics',
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                hintText: controller.isLrc
+                    ? 'Type or paste the LRC'
+                    : 'Type or paste the lyrics',
               ),
             ),
           ),

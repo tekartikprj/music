@@ -177,4 +177,57 @@ void main() {
     text.dispose();
     expect(lyricsFileBaseName('My: song.mp3'), 'My_ song');
   });
+
+  test('LRC mode edits the times, keeps the chords', () {
+    initTekalyLyricsBuilders();
+    var lyrics = parseLrcLyrics(
+      '[00:01.000]Il en faut peu\n[00:05.000]Vrai|ment très peu',
+    ).lyrics;
+    lyrics.lineList[0].partList[0].chord.v = 'C';
+    lyrics.lineList[0].section.v = 'Verse';
+    var text = LyricsTextController(
+      lyrics: lyrics,
+      format: LyricsTextFormat.lrc,
+    );
+    expect(text.isLrc, isTrue);
+    expect(
+      text.text.text,
+      '[00:01.000]Il en faut peu\n[00:05.000]Vrai|ment très peu\n',
+    );
+    expect(text.dirty, isFalse);
+    expect(text.status, '2 line(s), timed by line, with chords');
+    // A time changed, a line added: what the text says.
+    text.text.text =
+        '[ar:Baloo]\n[00:01.000]Il en faut peu\n[00:06.000]Vrai|ment très peu\n'
+        '[00:08.000]<00:08.000>Pour <00:08.500>ê|tre heureux';
+    expect(text.dirty, isTrue);
+    var edited = text.lyricsOfText();
+    var lines = edited.lineList;
+    expect(lines.map((line) => line.startMs.v), [1000, 6000, 8000]);
+    expect(lines[0].partList[0].chord.v, 'C');
+    expect(lines[0].section.v, 'Verse');
+    expect(lines[1].partList[0].isJoined, isTrue);
+    expect(lines[1].partList.map((part) => part.textOrEmpty), [
+      'Vrai',
+      'ment',
+      'très',
+      'peu',
+    ]);
+    expect(lines[2].partList.map((part) => part.startMs.v), [
+      8000,
+      8500,
+      null,
+      null,
+    ]);
+    expect(lines[2].partList[1].isJoined, isTrue);
+    expect(text.importedArtist, 'Baloo');
+    // Plain lines are untimed lines.
+    text.text.text = 'La la\nlou';
+    expect(text.lyricsOfText().isTimed, isFalse);
+    text.reset(edited);
+    expect(text.dirty, isFalse);
+    expect(text.text.text, contains('[00:06.000]Vrai|ment très peu'));
+    expect(text.text.text, contains('<00:08.500>ê|tre heureux'));
+    text.dispose();
+  });
 }

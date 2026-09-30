@@ -28,7 +28,7 @@ export 'src/lyrics_document.dart'
 export 'src/lyrics_import.dart'
     show LyricsFormat, detectLyricsFormat, importLyrics;
 export 'src/lyrics_lrc.dart' show LyricsImport, formatLrcLyrics, parseLrcLyrics;
-export 'src/lyrics_merge.dart' show mergeLyricsTiming;
+export 'src/lyrics_merge.dart' show mergeLyricsExtras, mergeLyricsTiming;
 export 'src/lyrics_model.dart'
     show
         CvLyrics,

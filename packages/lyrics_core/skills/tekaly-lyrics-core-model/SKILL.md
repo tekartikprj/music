@@ -39,13 +39,18 @@ display is `tekaly_lyrics_view` (`lyrics_view.dart`).
   extension first, then the content) and dispatches to
   `parseLrcLyrics` (LRC, enhanced LRC with `<mm:ss.xx>` per part, repeated
   lines, `[offset:]`, an empty timed line ends the previous line, an empty
-  line starts a page), `parseSubtitleLyrics` (SRT, WebVTT, its `<time>`
+  line starts a page, `|` inside a word splits untimed syllables),
+  `parseSubtitleLyrics` (SRT, WebVTT, its `<time>`
   karaoke timestamps; a cue is a page) or `parseLyricsText` (the text format:
   a line per line, a blank line per page, `|` between syllables, `[C]` chords,
   `[Chorus]` section labels, ChordPro directives, chords over lyrics).
   Export with `formatLrcLyrics(lyrics, title:, artist:)` (three digit
-  milliseconds, offset applied) and `formatLyricsText(lyrics, chords:,
-  syllables:)`.
+  milliseconds, offset applied; `syllables: true` writes `|` between the
+  untimed syllables, for an editing text rather than an export) and
+  `formatLyricsText(lyrics, chords:, syllables:)`.
+* Editing the LRC text itself: parse it then `mergeLyricsExtras(previous,
+  edited)` keeps the chords, the sections and the page times (what an LRC
+  does not carry) of the unchanged lines.
 * Editing the text of timed lyrics: parse the new text then
   `mergeLyricsTiming(previous, edited)` keeps the times of unchanged lines
   (and of changed lines in place when they keep their syllable count).

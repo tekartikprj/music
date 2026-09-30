@@ -60,9 +60,14 @@ places the widgets in its own screens.
 * Text: `LyricsTextController(lyrics:)` owns the text field and the lyrics
   it started from; `lyricsOfText()` keeps their times across the edit (and
   imports a pasted LRC/SRT). Apply it with `controller.setLyrics(...)` then
-  `text.reset(controller.lyrics)`. `LyricsTextEditor`,
-  `LyricsTextImportButton` and `LyricsTextMenuButton(fileName:)` are its
-  widgets.
+  `text.reset(controller.lyrics)`. `LyricsTextEditor(help:)`,
+  `LyricsTextImportButton(allowedExtensions:)` and
+  `LyricsTextMenuButton(fileName:)` are its widgets.
+* LRC mode: `LyricsTextController(lyrics:, format: LyricsTextFormat.lrc)`
+  edits the LRC itself, times included (`|` splits the syllables not timed
+  yet); `lyricsOfText()` takes the times from the text and keeps the chords,
+  sections and page times of the lyrics it started from. The help and the
+  hint of `LyricsTextEditor` follow (`lyricsLrcHelp`).
 * In widget tests, use a `ClockLyricsPlayer` with an injected `nowMs`, a
   `LyricsEditorStoreMemory` and `LyricsEditorSettingsMemory(tapLatencyMs:
   0)`; pump with durations, never `pumpAndSettle` (the karaoke preview
