@@ -122,6 +122,12 @@ class KaraokeLyricsView extends StatefulWidget {
 
 class _KaraokeLyricsViewState extends State<KaraokeLyricsView>
     with SingleTickerProviderStateMixin {
+  /// Smallest font size, whatever the box.
+  static const _minFontSize = 12.0;
+
+  /// The height of the lead-in dots row, in font sizes.
+  static const _leadInHeightFactor = 0.8;
+
   late LyricsTimeline _timeline;
   late Ticker _ticker;
   var _location = LyricsLocation.start;
@@ -260,7 +266,7 @@ class _KaraokeLyricsViewState extends State<KaraokeLyricsView>
   }
 
   Widget _leadIn(double fontSize) => SizedBox(
-    height: fontSize * 0.8,
+    height: fontSize * _leadInHeightFactor,
     child: Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -280,22 +286,91 @@ class _KaraokeLyricsViewState extends State<KaraokeLyricsView>
     ),
   );
 
+  /// The height of the lines [firstLine] to [endLine] (excluded) at
+  /// [fontSize], the lead-in row included, when laid out [width] wide.
+  double _pageHeight(
+    int firstLine,
+    int endLine,
+    double width,
+    double fontSize,
+    TextDirection textDirection,
+  ) {
+    var textStyle = widget.style.textStyle.copyWith(fontSize: fontSize);
+    var height = fontSize * _leadInHeightFactor;
+    for (var i = firstLine; i < endLine; i++) {
+      var painter = TextPainter(
+        text: TextSpan(
+          text: _LineText.of(_timeline.lines[i].line).text,
+          style: textStyle,
+        ),
+        textAlign: TextAlign.center,
+        textDirection: textDirection,
+      )..layout(maxWidth: width);
+      height += painter.height;
+      painter.dispose();
+    }
+    return height;
+  }
+
+  /// The font size showing the lines [firstLine] to [endLine] (excluded)
+  /// whole in [maxHeight] at [width]: [fontSize] when they fit, smaller
+  /// otherwise (never under [_minFontSize]). A page cut at the bottom is
+  /// worse than a smaller one: the player gives the lyrics what the video
+  /// leaves, little on a phone held sideways or in a short window.
+  double _fitFontSize(
+    int firstLine,
+    int endLine,
+    double width,
+    double maxHeight,
+    double fontSize,
+    TextDirection textDirection,
+  ) {
+    // A smaller font wraps a line less, never more: the height shrinks at
+    // least in proportion, one round fits and a second absorbs rounding.
+    for (var round = 0; round < 2 && fontSize > _minFontSize; round++) {
+      var height = _pageHeight(
+        firstLine,
+        endLine,
+        width,
+        fontSize,
+        textDirection,
+      );
+      if (height <= maxHeight) {
+        break;
+      }
+      fontSize = max(_minFontSize, fontSize * maxHeight / height * 0.99);
+    }
+    return fontSize;
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        var width = constraints.maxWidth.isFinite ? constraints.maxWidth : 600;
+        var width = constraints.maxWidth.isFinite
+            ? constraints.maxWidth
+            : 600.0;
         var fontSize = min(
           widget.style.maxFontSize,
-          max(12.0, width * widget.style.fontSizeFactor),
+          max(_minFontSize, width * widget.style.fontSizeFactor),
         );
-        var textStyle = widget.style.textStyle.copyWith(fontSize: fontSize);
         if (_timeline.lines.isEmpty) {
           return const SizedBox.shrink();
         }
         if (widget.layout == KaraokeLyricsLayout.page && _timeline.isTimed) {
           var page = _timeline
               .pages[_location.pageIndex.clamp(0, _timeline.pages.length - 1)];
+          if (constraints.maxHeight.isFinite) {
+            fontSize = _fitFontSize(
+              page.firstLine,
+              page.endLine,
+              width,
+              constraints.maxHeight,
+              fontSize,
+              Directionality.of(context),
+            );
+          }
+          var textStyle = widget.style.textStyle.copyWith(fontSize: fontSize);
           return Center(
             child: SingleChildScrollView(
               child: Column(
@@ -309,6 +384,7 @@ class _KaraokeLyricsViewState extends State<KaraokeLyricsView>
             ),
           );
         }
+        var textStyle = widget.style.textStyle.copyWith(fontSize: fontSize);
         return SingleChildScrollView(
           controller: _scrollController,
           padding: EdgeInsets.symmetric(vertical: fontSize * 2),

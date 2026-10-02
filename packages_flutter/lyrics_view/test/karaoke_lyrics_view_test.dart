@@ -59,6 +59,44 @@ void main() {
     expect(find.bySemanticsLabel('After a long break'), findsOneWidget);
   });
 
+  testWidgets('a page fits a short box', (tester) async {
+    var long = parseLrcLyrics('''
+[00:01.000]We met when we were in school, never took no shit from no one
+[00:04.000]We weren't fools, the teacher says we're dumb, we're only having fun
+''').lyrics;
+    Future<void> pumpIn(double height) => tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: SizedBox(
+              width: 600,
+              height: height,
+              child: KaraokeLyricsView(lyrics: long, positionMs: () => 0),
+            ),
+          ),
+        ),
+      ),
+    );
+    Rect lineRect(String start) =>
+        tester.getRect(find.bySemanticsLabel(RegExp('^$start')));
+    await pumpIn(400);
+    var box = tester.getRect(find.byType(KaraokeLyricsView));
+    // Room enough: the width decides the font (33 px, wrapped lines).
+    var tall = lineRect('We met').height;
+    expect(tall, greaterThan(60));
+    expect(lineRect('We weren').bottom, lessThanOrEqualTo(box.bottom));
+
+    await pumpIn(100);
+    box = tester.getRect(find.byType(KaraokeLyricsView));
+    expect(box.height, 100);
+    // Shrunk to fit: both lines whole, inside the box.
+    var first = lineRect('We met');
+    var second = lineRect('We weren');
+    expect(first.height, lessThan(tall));
+    expect(first.top, greaterThanOrEqualTo(box.top));
+    expect(second.bottom, lessThanOrEqualTo(box.bottom));
+  });
+
   testWidgets('songbook text with chords', (tester) async {
     var songbook = parseLyricsText('''
 [Chorus]
