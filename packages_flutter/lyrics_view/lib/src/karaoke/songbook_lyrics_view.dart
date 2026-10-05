@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:tekaly_lyrics_core/lyrics_core.dart';
 
 /// Lyrics as songbook text: the lines, the chords above their syllables, the

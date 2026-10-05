@@ -3,7 +3,7 @@ library;
 
 import 'dart:math';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:tekaly_lyrics_view/lyrics_view.dart';
 
 import 'lyrics_editor_controller.dart';

@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:lyrics_editor_app/src/app.dart';
 import 'package:lyrics_editor_app/src/app_context.dart';
 import 'package:lyrics_editor_app/src/platform/platform_fs.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:tekaly_file_picker_flutter/file_picker_flutter.dart';
 import 'package:tekartik_app_flutter_idb/sdb.dart';
 

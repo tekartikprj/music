@@ -1,7 +1,7 @@
 /// Small dialogs of the editor.
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Ask for a text, null when cancelled.
 Future<String?> lyricsEditorPromptText(
@@ -65,9 +65,8 @@ Future<bool> lyricsEditorConfirm(
 
 /// Show a snack bar, when there is a messenger.
 void lyricsEditorSnackBar(BuildContext context, String message) {
-  ScaffoldMessenger.maybeOf(
-    context,
-  )?.showSnackBar(SnackBar(content: Text(message)));
+  ScaffoldMessenger.maybeOf(context)
+      ?.showSnackBar(SnackBar(content: Text(message)));
 }
 
 /// `x0.75`: a playback rate as the speed menu shows it.

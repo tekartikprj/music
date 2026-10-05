@@ -7,13 +7,13 @@ publish_to: none
 version: 0.1.0+1
 
 environment:
-  sdk: ^3.12.0
+  sdk: ^3.13.0
 
 dependencies:
   flutter:
     sdk: flutter
   path: ">=1.9.1"
-  cupertino_icons: ">=1.0.8"
+  cupertino_icons: ">=1.0.9"
   tekaly_lyrics_editor:
     git:
       url: https://github.com/tekartikprj/music
@@ -56,9 +56,10 @@ dependencies:
       path: app_idb
   desktop_drop: ">=0.5.0"
   # The user's files on desktop (io), a memory file system in the tests.
-  fs_shim: ">=2.5.0"
+  fs_shim: ">=2.5.2"
   idb_shim: ">=2.9.6+1"
 
+  material_ui: ">=1.5.0"
 dev_dependencies:
   flutter_test:
     sdk: flutter

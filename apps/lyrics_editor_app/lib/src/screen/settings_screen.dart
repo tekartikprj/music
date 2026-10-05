@@ -1,7 +1,7 @@
 /// The settings: the tap and audio latencies of this device.
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:tekaly_lyrics_editor/lyrics_editor.dart';
 
 /// The settings.

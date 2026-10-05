@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:tekaly_lyrics_editor/lyrics_editor.dart';
 
 /// The editor of [lyrics] on a clock player at [now] (no latency).

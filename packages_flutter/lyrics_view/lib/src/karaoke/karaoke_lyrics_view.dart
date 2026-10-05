@@ -1,7 +1,7 @@
 import 'dart:math';
 
-import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:tekaly_lyrics_core/lyrics_core.dart';
 
 /// How karaoke lyrics are laid out.

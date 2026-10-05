@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fs_shim/fs_memory.dart';
@@ -9,6 +8,7 @@ import 'package:lyrics_editor_app/src/data/lyrics_opener.dart';
 import 'package:lyrics_editor_app/src/player/lyrics_players.dart';
 import 'package:lyrics_editor_app/src/screen/editor_screen.dart';
 import 'package:lyrics_editor_app/src/screen/home_screen.dart';
+import 'package:material_ui/material_ui.dart';
 
 const _lrc = '''[ti:Hakuna]
 [ar:Timon]

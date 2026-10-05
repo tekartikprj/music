@@ -11,7 +11,7 @@ environment:
   sdk: ^3.12.0
 
 dependencies:
-  cv: ">=1.1.10"
+  cv: ">=1.1.11"
 
 dev_dependencies:
   test: ">=1.31.0"
