@@ -9,8 +9,9 @@ import 'audio_lyrics_player.dart';
 import 'youtube_lyrics_player.dart';
 
 /// Creates the player of a document.
-typedef LyricsPlayerFactory =
-    Future<LyricsPlayer> Function(LyricsOpenedDocument document);
+typedef LyricsPlayerFactory = Future<LyricsPlayer> Function(
+  LyricsOpenedDocument document,
+);
 
 /// The player of [document].
 Future<LyricsPlayer> createLyricsPlayer(LyricsOpenedDocument document) async {

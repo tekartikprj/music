@@ -22,9 +22,8 @@ Future<List<LyricsOpenedFile>> loadLyricsSampleFiles(
     for (var name in song.fileNames)
       LyricsOpenedFile.bytes(
         name,
-        (await bundle.load(
-          '$lyricsSamplesAssetDir/$name',
-        )).buffer.asUint8List(),
+        (await bundle.load('$lyricsSamplesAssetDir/$name')).buffer
+            .asUint8List(),
       ),
   ];
 }
