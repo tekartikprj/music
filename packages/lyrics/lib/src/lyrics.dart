@@ -112,7 +112,8 @@ class LyricsLineData {
 String formatLyricsDuration(Duration duration) {
   var milliseconds = duration.inMilliseconds;
   var seconds = (milliseconds ~/ 1000) % 60;
-  var minutes = (milliseconds ~/ (1000 * 60)) % 60;
+  // Minutes are not wrapped at 60 (LRC has no hours, 65:03 stays 65:03).
+  var minutes = milliseconds ~/ (1000 * 60);
   milliseconds = milliseconds % 1000;
 
   return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}'

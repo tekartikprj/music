@@ -296,15 +296,7 @@ String formatLrcLyrics(
       sb.writeln();
     }
     var parts = line.partList;
-    var start = off(line.startMs.v);
-    if (start == null) {
-      for (var part in parts) {
-        if (part.startMs.v != null) {
-          start = off(part.startMs.v);
-          break;
-        }
-      }
-    }
+    var start = off(lyricsLineStartMs(line));
     if (start != null) {
       sb.write('[${_lrcTime(start)}]');
     }

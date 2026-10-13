@@ -1,7 +1,6 @@
 import 'package:tekaly_music_note/src/utils.dart';
 
 import 'interval.dart';
-import 'key.dart';
 import 'names.dart';
 
 class ChordPattern {
@@ -70,15 +69,7 @@ void checkChordPattern(ChordPattern? chordPattern) {
   if (intervals.contains(octave)) {
     throw ArgumentError('intervals should not contain the octave');
   }
-
-  // check that we don't have twice the same note
-  var keys = <Key>{};
-  for (var interval in intervals) {
-    var key = Key(interval.semitones);
-    if (keys.contains(key)) {
-      throw ArgumentError('$interval already present in $intervals');
-    }
-  }
+  // The same pitch class twice (a 2nd and a 9th) is allowed.
 }
 
 const power = ChordPattern([root, perfectFifth]);

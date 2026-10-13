@@ -1,3 +1,4 @@
+import 'names.dart' show intervalLongNames;
 import 'octave.dart';
 import 'semitones_base.dart';
 
@@ -32,32 +33,6 @@ class RawInterval extends SemitonesBase {
     }
   }
 }
-
-List<String?> intervalLongNames = [
-  'Root',
-  'Minor 2nd',
-  'major 2nd',
-  'Minor 3rd',
-  'major 3rd',
-  'Perfect 4th',
-  'Tritone',
-  'Perfect 5th',
-  'Minor 6th',
-  'major 6th',
-  'Minor 7th',
-  'major 7th',
-  // Octave
-  'Octave',
-  'b9',
-  '9',
-  null,
-  null,
-  '11',
-  null,
-  null,
-  null,
-  '13',
-];
 
 const root = Interval('root', 0);
 const minor3rd = Interval('b3', 3);

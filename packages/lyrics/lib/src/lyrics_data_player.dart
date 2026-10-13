@@ -57,8 +57,8 @@ class _LyricsMidiPlayer extends MidiPlayerBase {
       } else {
         throw StateError('Unknown content type ${content.runtimeType}');
       }
-      track.addEvent(0, EndOfTrackEvent());
     }
+    track.addEvent(0, EndOfTrackEvent());
     file.addTrack(track);
     load(file);
   }

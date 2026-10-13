@@ -57,7 +57,7 @@ List<String?> intervalShortNames = [
   'm6',
   'M6',
   'm7',
-  'm7',
+  'M7',
   // Octave
   'O',
   'm9',
@@ -123,6 +123,8 @@ Map<ChordPattern, String> chordPatternNames = {
   major7_sharp5: 'Major7#5',
   major7_b9: 'Major7b9',
   minor7_b9: 'Minor7b9',
+  // Wrong name (major9_b5 is a major chord) but kept: apps store these
+  // names as saved ids (chordelio preferences).
   major9_b5: 'Minor9b5',
   major_b5: 'Major/b5',
   major11: 'Major11',
@@ -163,6 +165,10 @@ var keyAliases = {
   'Bb': bFlat,
   'B': b,
 };
+// Note: some long aliases do not match their name and are kept as is (decision
+// pending): 'maj7' is major7 (in this library the dominant 7th, 'maj' only
+// names the major triad), 'majM9' is major9 (no major 7th) while 'maj9M' is
+// major9M, and 'min9M'/'minM9' are minor9 (the major 7th is dropped).
 var chordPatternAliases = {
   '': major,
   'M': major,
@@ -215,7 +221,36 @@ var chordPatternAliases = {
   'majM9b5': major9_b5,
   'majMadd9': majorAdd9,
   'majMadd9M': majorAdd9,
-  '7sus4 ': sevenSus4,
+  '7sus4': sevenSus4,
+  // Short forms (A7, Am7, Cdim...), the triad is major unless 'm' is given.
+  '7': major7,
+  '7M': major7M,
+  '6': major6,
+  '6/9': major6_9,
+  '9': major9,
+  '9M': major9M,
+  '11': major11,
+  '13': major13,
+  'add9': majorAdd9,
+  '7b5': major7_b5,
+  '7#5': major7_sharp5,
+  '7b9': major7_b9,
+  '9b5': major9_b5,
+  'm7': minor7,
+  'm7M': minor7M,
+  'm6': minor6,
+  'm6/9': minor6_9,
+  'm9': minor9,
+  'm11': minor11,
+  'm13': minor13,
+  'madd9': minorAdd9,
+  'm7b5': minor7_b5,
+  'm7b9': minor7_b9,
+  'dim': dim,
+  'dim7': dim7,
+  'aug': aug,
+  'sus2': sus2,
+  'sus4': sus4,
 };
 
 var chordPatterShortName = {

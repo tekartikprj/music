@@ -158,6 +158,38 @@ void main() {
     await harness.player.dispose();
   });
 
+  test('an edit doing nothing keeps the history and is not saved', () async {
+    var harness = _Harness('Hel|lo');
+    var controller = harness.controller;
+    controller.setHoldMode(true);
+    for (var ms in [1000, 1500]) {
+      await harness.player.seek(ms);
+      controller.tap();
+      await harness.player.seek(ms + 200);
+      controller.release();
+    }
+    var lyrics = controller.lyrics.copy();
+    expect(lyrics.lineList.first.partList.last.endMs.v, 1700);
+    // Undo the last release: something to redo.
+    controller.undo();
+    expect(controller.canRedo, isTrue);
+    var revision = controller.revision;
+    // A press and a release after the last unit, a page break with nothing
+    // left to time: nothing changes.
+    await harness.player.seek(9000);
+    controller.tap();
+    await harness.player.seek(9500);
+    controller.release();
+    controller.pageHere();
+    expect(controller.revision, revision);
+    expect(controller.canRedo, isTrue);
+    controller.redo();
+    expect(controller.lyrics, lyrics);
+    controller.dispose();
+    await harness.player.dispose();
+    await harness.store.close();
+  });
+
   test('text keeps the times across an edit', () {
     initTekalyLyricsBuilders();
     var lyrics = parseLrcLyrics(

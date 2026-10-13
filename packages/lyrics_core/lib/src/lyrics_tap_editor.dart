@@ -114,6 +114,10 @@ class LyricsTapEditor {
   LyricsUnitRef? _lastTapped;
   final _undoStack = <_Snapshot>[];
 
+  /// True between a tap that timed a unit and its release (hold mode): a
+  /// press that timed nothing (at the end) is released without effect.
+  var _pressTimed = false;
+
   /// The editor, on a copy of [lyrics].
   LyricsTapEditor(
     CvLyrics lyrics, {
@@ -230,6 +234,7 @@ class LyricsTapEditor {
 
   /// Put [state] back (the granularity is kept, the undo stack too).
   void restore(LyricsTapEditorState state) {
+    _pressTimed = false;
     lyrics = state.lyrics.copy();
     _computeUnits();
     _cursor = min(state.cursor, _units.length);
@@ -242,6 +247,7 @@ class LyricsTapEditor {
       return false;
     }
     var snapshot = _undoStack.removeLast();
+    _pressTimed = false;
     lyrics = snapshot.lyrics;
     _computeUnits();
     _cursor = min(snapshot.cursor, _units.length);
@@ -252,6 +258,7 @@ class LyricsTapEditor {
   /// A tap at [positionMs]: time the unit under the cursor and advance.
   /// False at the end (nothing left to time).
   bool tap(int positionMs) {
+    _pressTimed = false;
     var unit = cursorUnit;
     if (unit == null) {
       return false;
@@ -288,15 +295,7 @@ class LyricsTapEditor {
             ..endMs.v = null;
         }
       case LyricsTimingGranularity.line:
-        var oldStart = line.startMs.v;
-        if (oldStart == null) {
-          for (var part in parts) {
-            if (part.startMs.v != null) {
-              oldStart = part.startMs.v;
-              break;
-            }
-          }
-        }
+        var oldStart = lyricsLineStartMs(line);
         if (oldStart != null && oldStart != ms) {
           // The syllables timed before follow the line.
           var delta = ms - oldStart;
@@ -321,16 +320,18 @@ class LyricsTapEditor {
     }
     _lastTapped = unit;
     _cursor++;
+    _pressTimed = true;
     return true;
   }
 
   /// A key release at [positionMs] (hold mode): the end of the unit the
-  /// last tap timed.
+  /// last tap timed. Nothing when that tap timed nothing (at the end).
   void release(int positionMs) {
     var unit = _lastTapped;
-    if (unit == null) {
+    if (unit == null || !_pressTimed) {
       return;
     }
+    _pressTimed = false;
     var ms = _stored(positionMs);
     var line = _lines[unit.line];
     var parts = line.partList;

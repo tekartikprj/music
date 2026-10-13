@@ -185,18 +185,34 @@ class LyricsEditorController extends ChangeNotifier {
   LyricsTapEditorState get _state =>
       _tapEditor?.state ?? LyricsTapEditorState(lyrics.copy(), 0, null);
 
-  /// Remember the state before a change.
-  void _record() {
-    _undoStack.add(_state);
+  /// Remember the state before a change ([state], the current one by
+  /// default).
+  void _record([LyricsTapEditorState? state]) {
+    _undoStack.add(state ?? _state);
     if (_undoStack.length > lyricsEditorMaxUndo) {
       _undoStack.removeAt(0);
     }
     _redoStack.clear();
   }
 
-  /// Forget the state remembered by [_record] (the change did nothing).
-  void _unrecord() {
-    _undoStack.removeLast();
+  /// Run [edit] on the tap editor: an undo step and a save only when it
+  /// changed something (the lyrics, the cursor or the last tapped unit), so
+  /// that an edit doing nothing (a press after the last unit, a page break
+  /// on the first line...) keeps the redo history and the saved state.
+  void _edit(void Function(LyricsTapEditor editor) edit) {
+    var editor = _tapEditor;
+    if (editor == null) {
+      return;
+    }
+    var before = editor.state;
+    edit(editor);
+    if (editor.lyrics == before.lyrics &&
+        editor.cursor == before.cursor &&
+        editor.lastTapped == before.lastTapped) {
+      return;
+    }
+    _record(before);
+    changed();
   }
 
   void _restore(LyricsTapEditorState state) {
@@ -414,50 +430,29 @@ class LyricsEditorController extends ChangeNotifier {
 
   /// Time the unit under the cursor, advance.
   void tap() {
-    var editor = _tapEditor;
-    if (editor == null) {
-      return;
-    }
-    _record();
-    if (editor.tap(positionMs)) {
-      selected = editor.lastTapped;
-      changed();
-    } else {
-      _unrecord();
-    }
+    _edit((editor) {
+      if (editor.tap(positionMs)) {
+        selected = editor.lastTapped;
+      }
+    });
   }
 
   /// The end of a hold (hold mode only).
   void release() {
-    var editor = _tapEditor;
-    if (editor == null || !holdMode) {
+    if (!holdMode) {
       return;
     }
-    _record();
-    editor.release(positionMs);
-    changed();
+    _edit((editor) => editor.release(positionMs));
   }
 
   /// The end of the current line, now.
   void endLine() {
-    var editor = _tapEditor;
-    if (editor == null) {
-      return;
-    }
-    _record();
-    editor.endLine(positionMs);
-    changed();
+    _edit((editor) => editor.endLine(positionMs));
   }
 
   /// The next line starts a page, now.
   void pageHere() {
-    var editor = _tapEditor;
-    if (editor == null) {
-      return;
-    }
-    _record();
-    editor.pageHere(positionMs);
-    changed();
+    _edit((editor) => editor.pageHere(positionMs));
   }
 
   /// The unit the nudge and "set to now" act on.
@@ -465,26 +460,20 @@ class LyricsEditorController extends ChangeNotifier {
 
   /// Nudge the selected time by [deltaMs].
   void nudge(int deltaMs) {
-    var editor = _tapEditor;
     var ref = nudgeTarget;
-    if (editor == null || ref == null) {
+    if (ref == null) {
       return;
     }
-    _record();
-    editor.nudge(ref, deltaMs);
-    changed();
+    _edit((editor) => editor.nudge(ref, deltaMs));
   }
 
   /// The selected time set to now.
   void setSelectedToNow() {
-    var editor = _tapEditor;
     var ref = selected;
-    if (editor == null || ref == null) {
+    if (ref == null) {
       return;
     }
-    _record();
-    editor.setTime(ref, positionMs);
-    changed();
+    _edit((editor) => editor.setTime(ref, positionMs));
   }
 
   /// Move the cursor by [delta] units.
@@ -522,35 +511,26 @@ class LyricsEditorController extends ChangeNotifier {
 
   /// Set the offset added to every time.
   void setOffset(int offsetMs) {
-    _record();
-    _tapEditor?.setOffset(offsetMs);
-    changed();
+    _edit((editor) => editor.setOffset(offsetMs));
   }
 
   /// Shift the times from [line] on by [deltaMs].
   void shiftFrom(int line, int deltaMs) {
-    _record();
-    _tapEditor?.shiftFrom(line, deltaMs);
-    changed();
+    _edit((editor) => editor.shiftFrom(line, deltaMs));
   }
 
   /// Clear the times from [line] on.
   void clearFrom(int line) {
-    _record();
-    _tapEditor?.clearFrom(line);
-    changed();
+    _edit((editor) => editor.clearFrom(line));
   }
 
   /// Estimate the syllables of the selected (or last tapped) line.
   void estimateParts() {
-    var editor = _tapEditor;
-    var line = selected?.line ?? editor?.lastTapped?.line;
-    if (editor == null || line == null) {
+    var line = selected?.line ?? _tapEditor?.lastTapped?.line;
+    if (line == null) {
       return;
     }
-    _record();
-    editor.estimateParts(line);
-    changed();
+    _edit((editor) => editor.estimateParts(line));
   }
 
   /// Save what is not saved yet, then release (not the player).

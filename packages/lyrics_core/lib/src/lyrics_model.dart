@@ -192,6 +192,22 @@ extension CvLyricsLineExt on CvLyricsLine {
   bool get hasChords => partList.any((part) => part.chord.v != null);
 }
 
+/// The start of [line]: its own start, else the start of its first timed
+/// part, else null (no offset applied).
+int? lyricsLineStartMs(CvLyricsLine line) {
+  var start = line.startMs.v;
+  if (start != null) {
+    return start;
+  }
+  for (var part in line.partList) {
+    var partStart = part.startMs.v;
+    if (partStart != null) {
+      return partStart;
+    }
+  }
+  return null;
+}
+
 /// Lyrics helpers.
 extension CvLyricsExt on CvLyrics {
   /// The lines, empty when null.

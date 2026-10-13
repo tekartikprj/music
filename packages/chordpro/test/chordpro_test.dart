@@ -12,6 +12,14 @@ void main() {
       expect(textLinesToChordProLines(['E D', 'I t']), ['[E]I [D]t']);
       expect(textLinesToChordProLines(['E', 'I']), ['[E]I']);
     });
+    test('short chord forms', () {
+      expect(textLinesToChordProLines(['Am7 D7  G', 'I love you']), [
+        '[Am7]I lo[D7]ve y[G]ou',
+      ]);
+      expect(textLinesToChordProLines(['Cdim  Csus4', 'So long']), [
+        '[Cdim]So lon[Csus4]g',
+      ]);
+    });
     test('Section', () {
       expect(textLinesToChordProLines(['[Intro]', 'Am C  E']), [
         '{start_of_bridge: Intro}',

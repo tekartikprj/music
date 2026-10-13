@@ -254,16 +254,7 @@ class LyricsTimeline {
     // Line starts first: a line end may need the next line start.
     var starts = <int?>[];
     for (var line in sourceLines) {
-      var start = line.startMs.v;
-      if (start == null) {
-        for (var part in line.partList) {
-          if (part.startMs.v != null) {
-            start = part.startMs.v;
-            break;
-          }
-        }
-      }
-      starts.add(off(start));
+      starts.add(off(lyricsLineStartMs(line)));
     }
     int? nextStart(int index) {
       for (var i = index + 1; i < starts.length; i++) {

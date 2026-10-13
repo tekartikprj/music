@@ -68,11 +68,19 @@ LyricsData parseLyricLrc(String input) {
     var line = lines[i].trim();
     if (line.isNotEmpty) {
       if (line.startsWith('[')) {
-        var token = line.substring(1).split(']').first;
-        var remaining = line.substring(token.length + 2).trim();
+        var endIndex = line.indexOf(']');
+        if (endIndex == -1) {
+          // Malformed tag, skip the line
+          continue;
+        }
+        var token = line.substring(1, endIndex);
+        var remaining = line.substring(endIndex + 1).trim();
         var parts = token.split(':');
         var key = parts.first;
-        String getValue() {
+        String? getValue() {
+          if (parts.length < 2) {
+            return null;
+          }
           return token.substring(key.length + 1).trim();
         }
 
@@ -238,6 +246,9 @@ FindTimeResult findTime(String content) {
     return FindTimeResult();
   }
   var endIndex = content.indexOf('>', index);
+  if (endIndex == -1) {
+    return FindTimeResult();
+  }
   var token = content.substring(index + 1, endIndex).trim();
   var duration = tryParseLyricDuration(token);
   if (duration == null) {

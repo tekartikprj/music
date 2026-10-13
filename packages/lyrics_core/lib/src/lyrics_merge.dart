@@ -134,10 +134,8 @@ void _copyTiming(CvLyricsLine from, CvLyricsLine to) {
   var fromParts = from.partList;
   var toParts = to.partList;
   if (fromParts.length != toParts.length) {
-    // The line start may have come from its first part.
-    if (to.startMs.v == null && fromParts.isNotEmpty) {
-      to.startMs.v = fromParts.first.startMs.v;
-    }
+    // The line start may have come from its first timed part.
+    to.startMs.v ??= lyricsLineStartMs(from);
     return;
   }
   for (var p = 0; p < toParts.length; p++) {
