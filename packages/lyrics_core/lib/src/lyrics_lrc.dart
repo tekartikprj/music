@@ -311,7 +311,9 @@ String formatLrcLyrics(
       var partEnd = off(part.endMs.v);
       if (withParts && partEnd != null && p < parts.length - 1) {
         var next = off(parts[p + 1].startMs.v);
-        if (next == null || next > partEnd) {
+        // Only before a timed part: a tag followed by text is read as the
+        // start of that text, an untimed part would get the end as start.
+        if (next != null && next > partEnd) {
           sb.write('${part.isJoined ? '' : ' '}<${_lrcTime(partEnd)}>');
           continue;
         }

@@ -3,6 +3,8 @@
 /// page times when the LRC was.
 library;
 
+import 'dart:math';
+
 import 'lyrics_model.dart';
 
 /// [edited] (parsed from an edited text, untimed) with the times of
@@ -32,7 +34,8 @@ CvLyrics mergeLyricsTiming(CvLyrics previous, CvLyrics edited) {
 ///
 /// Lines are matched as in [mergeLyricsTiming]; a matched line takes the
 /// section of the previous one when it has none, its page time when both
-/// start a page, and its chords when it has none and as many parts. The
+/// start a page (the same effective time: the LRC is written with the
+/// offset applied), and its chords when it has none and as many parts. The
 /// language is kept.
 CvLyrics mergeLyricsExtras(CvLyrics previous, CvLyrics edited) {
   var result = edited.copy()
@@ -43,8 +46,14 @@ CvLyrics mergeLyricsExtras(CvLyrics previous, CvLyrics edited) {
     var from = oldLines[oldIndex];
     var to = newLines[newIndex];
     to.section.v ??= from.section.v;
-    if (to.isNewPage && from.isNewPage && to.pageMs.v == null) {
-      to.pageMs.v = from.pageMs.v;
+    var pageMs = from.pageMs.v;
+    if (to.isNewPage &&
+        from.isNewPage &&
+        to.pageMs.v == null &&
+        pageMs != null) {
+      // The LRC was written with the offset applied: the same effective
+      // page time against the offset of the edited lyrics.
+      to.pageMs.v = max(0, pageMs + previous.offset - result.offset);
     }
     var fromParts = from.partList;
     var toParts = to.partList;
