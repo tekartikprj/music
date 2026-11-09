@@ -20,7 +20,7 @@ ChordPro parser, no song model and no renderer in this package.
 
 ## Guidelines
 
-* Dependency (git, private repo, not on pub.dev):
+* Dependency (git, public repo, not on pub.dev):
   ```yaml
   dependencies:
     tekaly_chordpro:
@@ -40,11 +40,12 @@ ChordPro parser, no song model and no renderer in this package.
 * Chord line detection decides everything: a line is a chord line when its
   space-separated tokens parse as chords — one token is enough for a
   one-token line, otherwise at least half of the tokens must parse.
-  Parsing is `tryParseChord` from `tekaly_music_note`, whose suffix table is
-  narrow: `C`, `Am`, `Amin7`, `Cmaj7`, `Ebmin7b5`, `Bb` work; `Am7`, `C7`,
-  `Cdim`, `Csus4`, `G/B` do **not**. A line whose chords are written with
-  those short forms is treated as lyrics and copied verbatim — normalise
-  the chord spellings upstream if your source uses them.
+  Parsing is `tryParseChord` from `tekaly_music_note`: `C`, `Am`, `Am7`,
+  `Amin7`, `C7`, `Cmaj7`, `Cdim`, `Csus4`, `Cadd9`, `F#m`, `Bb`, `Ebmin7b5`
+  work; slash chords (`G/B`), `N.C.` and lowercase names do **not**. Every
+  word of a chord line is written as a chord, the unparsed ones included
+  (`C G/B Am` gives `[C] [G/B] [Am]`), and a short lyric line made of chord
+  names (`A man`) is read as a chord line.
 * Chord line followed by a lyric line: the two are merged into one line and
   each chord is inserted at its column, `[C]Hello my[G] friend`. Alignment is
   by character position, so the source must use spaces (never tabs) and a
@@ -54,13 +55,15 @@ ChordPro parser, no song model and no renderer in this package.
   becomes a bracketed chord-only line, `[Am] [C]  [E]` (the spacing between
   chords is kept). Note that an empty line right after a chord line is
   consumed as its (empty) lyric line.
-* A line starting with `[` is a section header: `[Verse 1]` gives
+* A line starting with `[` and holding a `]` is a section header (one
+  without `]` is copied as a plain line): `[Verse 1]` gives
   `{start_of_verse: Verse 1}`, `[Chorus]` `{start_of_chorus: Chorus}`; the
   first word decides the type, lowercased, and anything that is not `verse`,
   `chorus` or `bridge` (`[Intro]`, `[Solo]`...) falls back to `bridge` while
   keeping its original label. The section is closed with
   `{end_of_<type>}` by the next header, by the first plain (non chord) line
-  or by the end of the input.
+  or by the end of the input: a lyric line without chords in the middle of a
+  verse ends it.
 * Do not feed ChordPro (or any text with inline `[C]` chords) back in: a
   line starting with `[` is read as a section header and **the rest of the
   line is dropped** (`[C]Hello world` becomes `{start_of_bridge: C}`).
@@ -176,10 +179,10 @@ void main() {
       '{end_of_bridge}',
     ]);
   });
-  test('unknown chord spelling is left as lyrics', () {
-    // 'Am7' is not parsed as a chord, the line is copied as is.
-    expect(textLinesToChordProLines(['Am7 D7', 'words']), [
-      'Am7 D7',
+  test('lowercase words are not chords', () {
+    // 'am' does not parse as a chord, the line is copied as is.
+    expect(textLinesToChordProLines(['am i', 'words']), [
+      'am i',
       'words',
     ]);
   });

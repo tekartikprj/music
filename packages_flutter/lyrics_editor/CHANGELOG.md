@@ -1,7 +1,7 @@
 ## 0.1.0
 
 - Initial version: the timing editor, the text editor and the latency
-  calibration, extracted from karasongelio behind `LyricsPlayer`,
+  calibration, extracted from an app behind `LyricsPlayer`,
   `LyricsEditorStore` and `LyricsEditorSettings`; `LyricsEditorController`
   with one undo history for the text and the timing.
 - `LyricsTextImportButton` and `importFile` take the file extensions offered

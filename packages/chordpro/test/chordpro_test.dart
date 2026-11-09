@@ -36,5 +36,11 @@ void main() {
         '{end_of_verse}',
       ]);
     });
+    test('a line starting with [ never closed is kept', () {
+      expect(textLinesToChordProLines(['[Intro', 'Hello']), [
+        '[Intro',
+        'Hello',
+      ]);
+    });
   });
 }

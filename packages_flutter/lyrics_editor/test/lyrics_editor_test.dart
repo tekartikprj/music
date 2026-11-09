@@ -3,6 +3,20 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:tekaly_lyrics_editor/lyrics_editor.dart';
 
+/// A store whose saves fail (offline, disk full).
+class _FailingStore implements LyricsEditorStore {
+  var calls = 0;
+
+  @override
+  Future<void> save(CvLyricsDocument document) async {
+    calls++;
+    throw StateError('disk full');
+  }
+
+  @override
+  Stream<CvLyricsDocument>? get remoteChanges => null;
+}
+
 /// The editor of [lyrics] on a clock player at [now] (no latency).
 class _Harness {
   var now = 0;
@@ -261,5 +275,45 @@ void main() {
     expect(text.text.text, contains('[00:06.000]Vrai|ment très peu'));
     expect(text.text.text, contains('<00:08.500>ê|tre heureux'));
     text.dispose();
+  });
+
+  test('back to the previous line once everything is timed', () async {
+    var harness = _Harness('Ka|ra|o|ke\nla la');
+    var controller = harness.controller;
+    // 6 units (syllables) on 2 lines, all timed.
+    for (var i = 0; i < 6; i++) {
+      harness.now += 500;
+      await controller.seek(harness.now);
+      controller.tap();
+    }
+    expect(controller.tapEditor!.cursorUnit, isNull);
+    await controller.fromPreviousLine();
+    // The last line starts at 2500 ms, 2 s of pre-roll.
+    expect(controller.tapEditor!.cursorUnit!.line, 1);
+    expect(controller.positionMs, 500);
+    controller.dispose();
+    await harness.player.dispose();
+  });
+
+  test('a failed save keeps the changes to save', () async {
+    initTekalyLyricsBuilders();
+    var player = ClockLyricsPlayer(nowMs: () => 0);
+    var store = _FailingStore();
+    var controller = LyricsEditorController(
+      document: CvLyricsDocument.of(parseLyricsText('Ka|ra').lyrics),
+      player: player,
+      settings: LyricsEditorSettingsMemory(tapLatencyMs: 0),
+      store: store,
+    );
+    controller.tap();
+    expect(controller.dirty, isTrue);
+    await expectLater(controller.save(), throwsStateError);
+    expect(store.calls, 1);
+    expect(controller.dirty, isTrue);
+    // Closing tries once more, throws, and still releases.
+    await expectLater(controller.close(), throwsStateError);
+    expect(store.calls, 2);
+    expect(() => controller.addListener(() {}), throwsFlutterError);
+    await player.dispose();
   });
 }

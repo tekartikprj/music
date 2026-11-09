@@ -269,6 +269,9 @@ class LyricsEditorController extends ChangeNotifier {
   }
 
   /// Save now, when there is something to save.
+  ///
+  /// When the store fails, the document stays [dirty] (the save button is
+  /// shown again, the next change saves it again) and the error is thrown.
   Future<void> save() async {
     _saveTimer?.cancel();
     var store = this.store;
@@ -276,9 +279,17 @@ class LyricsEditorController extends ChangeNotifier {
       return;
     }
     var document = this.document;
+    var previousSaved = _saved;
     _saved = lyrics.copy();
     dirty = false;
-    await store.save(document);
+    try {
+      await store.save(document);
+    } catch (_) {
+      _saved = previousSaved;
+      dirty = true;
+      _notify();
+      rethrow;
+    }
     _remote = null;
     _notify();
   }
@@ -411,7 +422,11 @@ class LyricsEditorController extends ChangeNotifier {
     if (editor == null) {
       return;
     }
-    var line = max(0, (editor.cursorUnit?.line ?? editor.units.length) - 1);
+    // Once everything is timed, the line before the end: the last one.
+    var line = max(
+      0,
+      (editor.cursorUnit?.line ?? editor.lyrics.lineList.length) - 1,
+    );
     var timeline = LyricsTimeline(editor.lyrics);
     int? start;
     for (var i = line; i >= 0 && start == null; i--) {
@@ -533,13 +548,20 @@ class LyricsEditorController extends ChangeNotifier {
     _edit((editor) => editor.estimateParts(line));
   }
 
-  /// Save what is not saved yet, then release (not the player).
+  /// Save what is not saved yet, then release (not the player), even when
+  /// the save fails (its error is thrown).
   Future<void> close() async {
     _saveTimer?.cancel();
-    if (dirty) {
-      await save();
+    try {
+      if (dirty) {
+        await save();
+      }
+    } finally {
+      // The save was just tried (its error is thrown): no second one in the
+      // background from dispose.
+      dirty = false;
+      dispose();
     }
-    dispose();
   }
 
   @override

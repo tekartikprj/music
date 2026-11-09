@@ -33,6 +33,11 @@ places the widgets in its own screens.
   It re-exports `tekaly_lyrics_view` and `tekaly_lyrics_core`. File import
   and export go through `tekalyFilePicker` (`tekaly_file_picker`): the app
   initializes its Flutter implementation.
+* The widgets are built on `package:material_ui` (not
+  `package:flutter/material.dart`): the app must use material_ui's
+  `MaterialApp` and `Scaffold` (`import 'package:material_ui/material_ui.dart'`).
+  Under Flutter's own `MaterialApp` they fail with "No Material widget found"
+  and "No MaterialLocalizations found".
 * `LyricsEditorController(document:, player:, settings:, store:)` is the
   state every widget shares: the lyrics (`lyrics`, `document`), the clock
   (`positionMs`, fed by the player unless it is a `LyricsPlayerClock`), the
@@ -41,7 +46,10 @@ places the widgets in its own screens.
   transport (`play`, `seek`, `setRate`, `fromPreviousLine`, `loop`), one undo
   history (`undo`, `redo`, `canUndo`), and `setLyrics` for a text edit.
 * Saving: every change calls `store.save(document)` 2 s later (and on
-  `save()`, `close()`, `dispose()`). The store decides where it goes: a
+  `save()`, `close()`, `dispose()`). When the store throws, the document
+  stays `dirty` (the save button shows again) and `save()`/`close()` rethrow
+  (`close()` still disposes); the debounced save's error is unhandled, so a
+  store that can fail should catch and report its errors itself. The store decides where it goes: a
   synced db, or a local draft that the app writes to the user's file on
   Ctrl+S. `store.remoteChanges` (may be null) feeds the "Reload / Keep mine"
   banner. The controller never disposes the player: the host does.
@@ -78,7 +86,7 @@ places the widgets in its own screens.
 ### A timing screen
 
 ```dart
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:tekaly_lyrics_editor/lyrics_editor.dart';
 
 class TimingScreen extends StatefulWidget {

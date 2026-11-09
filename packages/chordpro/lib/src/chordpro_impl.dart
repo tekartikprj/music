@@ -113,19 +113,18 @@ List<String> textLinesToChordProLines(List<String> lines) {
           result.add(sb.toString());
         }
       }
-    } else if (line.startsWith('[')) {
+    } else if (line.startsWith('[') && line.contains(']')) {
+      // A section header (a line starting with `[` but never closed is
+      // plain text, kept below).
       terminateSection();
-      var end = line.indexOf(']');
-      if (end != -1) {
-        var sectionName = line.substring(1, end);
-        var type = sectionName.split(' ').first.toLowerCase();
-        if (type == 'verse' || type == 'chorus' || type == 'bridge') {
-          sectionType = type;
-        } else {
-          sectionType = 'bridge';
-        }
-        result.add('{start_of_$sectionType: $sectionName}');
+      var sectionName = line.substring(1, line.indexOf(']'));
+      var type = sectionName.split(' ').first.toLowerCase();
+      if (type == 'verse' || type == 'chorus' || type == 'bridge') {
+        sectionType = type;
+      } else {
+        sectionType = 'bridge';
       }
+      result.add('{start_of_$sectionType: $sectionName}');
     } else {
       terminateSection();
       result.add(line);
