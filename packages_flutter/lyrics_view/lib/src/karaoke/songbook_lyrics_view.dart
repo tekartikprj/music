@@ -50,6 +50,9 @@ class SongbookLyricsView extends StatelessWidget {
       var line = lines[i];
       if (i > 0 && line.isNewPage) {
         children.add(SizedBox(height: (textStyle.fontSize ?? 16) * 0.8));
+        // A page break ends a section, as in the text format: a section
+        // starting again (a chorus sung twice) is labelled again.
+        previousSection = null;
       }
       var section = line.section.v;
       if (section != null && section != previousSection) {

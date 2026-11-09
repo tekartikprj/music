@@ -6,7 +6,8 @@ description: >-
   KaraokeLyricsView (lyrics, positionMs, layout KaraokeLyricsLayout.page /
   scroll, linesPerPage, style, leadInGapMs, leadInMs), KaraokeLyricsStyle
   (dark, light, fromTheme), SongbookLyricsView (showChords, transpose,
-  textStyle, chordStyle) from package:tekaly_lyrics_view/lyrics_view.dart.
+  textStyle, chordStyle) from package:tekaly_lyrics_view/lyrics_view.dart,
+  fed by a LyricsClock or a ClockLyricsPlayer.
 ---
 
 # Karaoke and songbook display (tekaly_lyrics_view)
@@ -43,16 +44,34 @@ syllables.
 * Style: `KaraokeLyricsStyle.dark` (yellow on black), `.light(sung:)`,
   `.fromTheme(theme)`; the font size is a fraction of the width
   (`fontSizeFactor`) capped by `maxFontSize`.
+* The widgets are built on `package:material_ui/material_ui.dart`, use it in
+  the app too: with `package:flutter/material.dart`,
+  `KaraokeLyricsStyle.fromTheme(Theme.of(context))` does not compile (two
+  `ThemeData` types) and `SongbookLyricsView` gets material_ui's default
+  theme, not the app's.
+* No media (tests, timing against a live performance): `ClockLyricsPlayer`
+  (re-exported from tekaly_lyrics_core) is a stopwatch with `play`, `pause`,
+  `seek` and `positionMs`; pass `positionMs: () => player.positionMs`.
 * Give it a bounded box. It keeps a ticker running: in widget tests pump
   durations, `pumpAndSettle` never settles.
+* After an edit pass a new `CvLyrics` (`lyrics.copy()`, edit the copy) or a
+  new key: the view compares the lyrics with the previous ones, the same
+  instance edited in place is never seen as changed (old pages, an error in
+  paint when parts were removed).
+* The lead-in dots are at the top of the view: in the scroll layout they are
+  only seen before the first line.
 * `SongbookLyricsView(lyrics:, showChords:, transpose:, textStyle:,
-  chordStyle:)` is not scrollable: put it in a scroll view.
+  chordStyle:)` is not scrollable: put it in a scroll view. A page break
+  ends a section, a section starting again is labelled again (as the text
+  format writes it).
+* Runnable example: `example/main.dart` (karaoke on a `ClockLyricsPlayer`,
+  songbook with chords).
 
 ## Examples
 
 ```dart
+import 'package:material_ui/material_ui.dart';
 import 'package:tekaly_lyrics_view/lyrics_view.dart';
-import 'package:flutter/material.dart';
 
 class KaraokePane extends StatelessWidget {
   final CvLyrics lyrics;

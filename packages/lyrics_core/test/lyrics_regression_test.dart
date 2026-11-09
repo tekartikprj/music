@@ -79,5 +79,37 @@ void main() {
       expect(merged.lineList[1].pageMs.v, 5500);
       expect(LyricsTimeline(merged).pages[1].showMs, 5500);
     });
+    // Fails on the web only (dart test -p node or -p chrome): `1 << 40` is 0
+    // with dart2js, every shifted time became 0.
+    test('shiftTimes keeps the times on the web', () {
+      var lyrics = CvLyrics.of([
+        CvLyricsLine.of(
+          [CvLyricsPart.of('one', startMs: 1000, endMs: 1500)],
+          startMs: 1000,
+          endMs: 2000,
+        ),
+        CvLyricsLine.of(
+          [CvLyricsPart.of('two', startMs: 5000)],
+          newPage: true,
+          pageMs: 4500,
+        ),
+      ]);
+      lyrics.shiftTimes(100);
+      var lines = lyrics.lineList;
+      expect(lines[0].startMs.v, 1100);
+      expect(lines[0].endMs.v, 2100);
+      expect(lines[0].partList.single.startMs.v, 1100);
+      expect(lines[0].partList.single.endMs.v, 1600);
+      expect(lines[1].pageMs.v, 4600);
+      expect(lines[1].partList.single.startMs.v, 5100);
+      lyrics.shiftTimes(-1200, fromLine: 1);
+      expect(lines[0].startMs.v, 1100);
+      expect(lines[1].pageMs.v, 3400);
+      expect(lines[1].partList.single.startMs.v, 3900);
+      // Still never negative.
+      lyrics.shiftTimes(-5000);
+      expect(lines[0].startMs.v, 0);
+      expect(lines[1].partList.single.startMs.v, 0);
+    });
   });
 }

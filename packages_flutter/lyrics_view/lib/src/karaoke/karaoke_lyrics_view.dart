@@ -82,11 +82,20 @@ class KaraokeLyricsStyle {
 /// [positionMs] is read on every frame: give it a `LyricsClock.positionMs`
 /// fed by the player (media time, any output latency already taken off).
 /// Nothing repaints while the position stays on the same part progress.
+///
+/// Give it a bounded size: the page layout shrinks the font so that a page
+/// fits the height. It keeps a ticker running, so `pumpAndSettle` never
+/// settles in a widget test (pump durations).
 class KaraokeLyricsView extends StatefulWidget {
   /// The lyrics.
+  ///
+  /// Compared with the previous ones on a rebuild: pass a new instance (or a
+  /// new key) after an edit, the same instance edited in place is not seen
+  /// as changed.
   final CvLyrics lyrics;
 
-  /// The media position now, in milliseconds.
+  /// The media position now, in milliseconds (the media time: the lyrics
+  /// offset is applied by the view).
   final int Function() positionMs;
 
   /// Page or scroll.
@@ -98,7 +107,9 @@ class KaraokeLyricsView extends StatefulWidget {
   /// The look.
   final KaraokeLyricsStyle style;
 
-  /// A line following a gap at least this long gets lead-in dots.
+  /// A line following a gap at least this long gets lead-in dots (the first
+  /// line too). The dots are at the top of the view: in the scroll layout
+  /// they are only seen before the first line.
   final int leadInGapMs;
 
   /// How long before its line the lead-in dots show.
@@ -131,7 +142,10 @@ class _KaraokeLyricsViewState extends State<KaraokeLyricsView>
   late LyricsTimeline _timeline;
   late Ticker _ticker;
   var _location = LyricsLocation.start;
-  var _positionMs = 0;
+
+  /// The position last located, null to locate on the next tick whatever the
+  /// position (a paused player does not move).
+  int? _positionMs;
   var _leadInDots = 0;
   final _scrollController = ScrollController();
   final _lineKeys = <int, GlobalKey>{};
@@ -157,6 +171,8 @@ class _KaraokeLyricsViewState extends State<KaraokeLyricsView>
         oldWidget.linesPerPage != widget.linesPerPage) {
       _buildTimeline();
       _location = LyricsLocation.start;
+      // Locate again in the new timeline, even when paused.
+      _positionMs = null;
     }
   }
 

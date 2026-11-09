@@ -7,6 +7,8 @@
 /// is progressively enriched, page times first or syllables right away.
 library;
 
+import 'dart:math';
+
 import 'package:cv/cv.dart';
 
 import 'lyrics_document.dart';
@@ -240,7 +242,9 @@ extension CvLyricsExt on CvLyrics {
   /// Every time shifted by [deltaMs] (lines from [fromLine] on only when
   /// given); a time ending up negative becomes 0.
   void shiftTimes(int deltaMs, {int fromLine = 0}) {
-    int? shift(int? ms) => ms == null ? null : (ms + deltaMs).clamp(0, 1 << 40);
+    // No upper bound: `1 << 40` was 0 with dart2js (every time became 0 on
+    // the web).
+    int? shift(int? ms) => ms == null ? null : max(0, ms + deltaMs);
     var list = lineList;
     for (var i = fromLine; i < list.length; i++) {
       var line = list[i];

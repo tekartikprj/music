@@ -59,6 +59,56 @@ void main() {
     expect(find.bySemanticsLabel('After a long break'), findsOneWidget);
   });
 
+  testWidgets('new lyrics while paused show the page of the position', (
+    tester,
+  ) async {
+    Widget view(CvLyrics lyrics) => MaterialApp(
+      home: Scaffold(
+        body: SizedBox(
+          width: 600,
+          height: 400,
+          child: KaraokeLyricsView(lyrics: lyrics, positionMs: () => 19000),
+        ),
+      ),
+    );
+    await tester.pumpWidget(view(lyrics));
+    await tester.pump(const Duration(milliseconds: 16));
+    expect(find.bySemanticsLabel('After a long break'), findsOneWidget);
+    // Edited (or synced) while the player is paused: the position does not
+    // move, the new lyrics are still located.
+    var edited = lyrics.copy();
+    edited.lineList.last.partList.last.text.v = 'pause';
+    await tester.pumpWidget(view(edited));
+    await tester.pump(const Duration(milliseconds: 16));
+    expect(find.bySemanticsLabel('Karaoke'), findsNothing);
+    expect(find.bySemanticsLabel('After a long pause'), findsOneWidget);
+  });
+
+  testWidgets('paused at 0, the lead-in dots before the first line', (
+    tester,
+  ) async {
+    const style = KaraokeLyricsStyle.dark;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: KaraokeLyricsView(
+            lyrics: parseLrcLyrics('[00:02.000]Hello\n').lyrics,
+            positionMs: () => 0,
+          ),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 16));
+    // 2 s before the line: 2 dots of 3.
+    var dots = find.byWidgetPredicate(
+      (widget) =>
+          widget is Container &&
+          widget.decoration is BoxDecoration &&
+          (widget.decoration! as BoxDecoration).color == style.leadInColor,
+    );
+    expect(dots, findsNWidgets(2));
+  });
+
   testWidgets('a page fits a short box', (tester) async {
     var long = parseLrcLyrics('''
 [00:01.000]We met when we were in school, never took no shit from no one
@@ -124,5 +174,26 @@ Il en faut [C]peu
     );
     expect(find.text('Il en faut peu'), findsOneWidget);
     expect(find.text('Vraiment'), findsOneWidget);
+  });
+
+  testWidgets('songbook: a chorus sung twice is labelled twice', (
+    tester,
+  ) async {
+    var text = '''
+[Chorus]
+La la
+
+[Chorus]
+La la
+''';
+    var songbook = parseLyricsText(text).lyrics;
+    // As the text format writes it.
+    expect(formatLyricsText(songbook), text);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(body: SongbookLyricsView(lyrics: songbook)),
+      ),
+    );
+    expect(find.text('Chorus'), findsNWidgets(2));
   });
 }
