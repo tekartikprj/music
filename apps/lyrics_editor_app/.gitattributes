@@ -1,0 +1,4 @@
+# The samples are compared byte for byte with what tool/generate_samples.dart
+# writes (test/samples_test.dart): no line ending conversion on checkout
+# (Windows turned their LF into CRLF).
+assets/samples/** -text
