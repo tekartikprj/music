@@ -21,7 +21,7 @@ to `stdout` as they come.
 
 ## Guidelines
 
-* Dependency (git, private repo, not on pub.dev):
+* Dependency (git, public repo, not on pub.dev):
   ```yaml
   dependencies:
     tekaly_lyrics:
@@ -55,7 +55,11 @@ to `stdout` as they come.
   empty `text` with a valid ref is the end-of-line marker part produced by a
   trailing `<00:02>` tag: it is the right moment to stop highlighting.
 * The lines and the parts must be ordered by time (they are, straight out of
-  `parseLyricLrc`), otherwise the search returns nonsense.
+  `parseLyricLrc`, which sorts the lines), otherwise the search returns
+  nonsense: sort a `LyricsData` built by hand.
+* Lyrics without any timed line (an empty or plain text file): every
+  position gives `before()`, and `getNextRef(before())` is `before()` itself,
+  so a walk over the refs stops at once.
 * Highlight with the offsets, not with string search:
   `line.text.substring(0, info.end)` is the sung part,
   `line.text.substring(info.start, info.end)` the current word. Get the line

@@ -123,6 +123,10 @@ class LocatedLyricsData {
   LocatedLyricsDataItemRef getNextRef(LocatedLyricsDataItemRef ref) {
     var lineIndex = ref.lineIndex;
     if (lineIndex == -1) {
+      if (lines.isEmpty) {
+        // No line: before the start is also the end.
+        return LocatedLyricsDataItemRef.before();
+      }
       return LocatedLyricsDataItemRef(0, -1);
     }
     var partIndex = ref.partIndex;

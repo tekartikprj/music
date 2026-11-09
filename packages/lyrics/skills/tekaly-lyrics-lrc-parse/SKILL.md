@@ -15,11 +15,13 @@ description: >-
 `tekaly_lyrics` parses [LRC](https://en.wikipedia.org/wiki/LRC_(file_format))
 lyrics — line timed `[00:12.34]text` and word timed
 `[00:12.34]<00:12.34>Some <00:12.90>body` — into a small immutable model, and
-writes that model back as LRC. It is pure Dart: no `dart:io`, no UI.
+writes that model back as LRC. It is pure Dart (VM, web, Flutter), no UI;
+the only `dart:io` part is the console player `LyricsDataPlayerIo` (also
+exported by `lyrics.dart`: it compiles on the web, do not use it there).
 
 ## Guidelines
 
-* Dependency (git, private repo, not on pub.dev):
+* Dependency (git, public repo, not on pub.dev):
   ```yaml
   dependencies:
     tekaly_lyrics:
@@ -37,8 +39,12 @@ writes that model back as LRC. It is pure Dart: no `dart:io`, no UI.
 * `parseLyricLrc(String input)` returns a `LyricsData` and never throws: it
   keeps `[ti:...]` as `title` and `[ar:...]` as `artist`, turns every
   `[<digits>...]` tag into a line, and silently drops everything else
-  (`[al:]`, `[length:]`, `[by:]`, comments, blank lines). `LyricsData.duration`
-  is *not* filled by the parser — set it yourself if you need it.
+  (`[al:]`, `[length:]`, `[by:]`, comments, blank lines). A line sung several
+  times, `[00:12.00][00:45.00]Chorus`, gives one line per time tag (word
+  times are absolute: do not mix them with several line tags). The lines are
+  sorted by time (LRC files need not be), equal times in the file order.
+  `LyricsData.duration` is *not* filled by the parser — set it yourself if
+  you need it.
 * Each `LyricsLineData` exposes `time`, `text` and `parts`, and its `content`
   is one of two classes — test with `is` before casting:
   `LyricsLineSingleContent` (plain line, one `part` spanning the whole text)
@@ -63,8 +69,9 @@ writes that model back as LRC. It is pure Dart: no `dart:io`, no UI.
   `mm:ss.ff`, `mm:ss.fff` and bare `ss.ff`, ignores a trailing `]` or `>`,
   and returns `Duration.zero` when it cannot parse — check the input yourself
   when a zero would be wrong. `lrcFormatDuration(duration)` formats back as
-  `MM:SS.cc` (hundredths, truncated); it wraps past 60 minutes, so do not use
-  it for hour-long medleys.
+  `MM:SS.cc` (hundredths, truncated); minutes are not wrapped (LRC has no
+  hours: 65 minutes is `65:03.00`, which parses back).
+* A `<` in the lyrics is text (`I <3 you`) unless it starts a time tag.
 * The model is plain Dart objects, ideal for a Flutter widget or a CLI. For
   positioning the current word inside a line (karaoke highlight) and for
   playback, use the `tekaly-lyrics-karaoke-sync` skill of this package

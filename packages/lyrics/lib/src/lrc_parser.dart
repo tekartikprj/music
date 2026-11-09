@@ -12,6 +12,10 @@ Duration? tryParseLyricDuration(String token) {
   int? minutes;
   if (minutesAndSecondsParts.length == 2) {
     minutes = minutesAndSecondsParts.first.tryParseInt();
+    if (minutes == null) {
+      // Not a time (`<3 <00:02.00>`: the token is `3 <00:02.00`)
+      return null;
+    }
     secondsAndMillis = minutesAndSecondsParts.last;
   } else {
     secondsAndMillis = filtered;
@@ -91,12 +95,25 @@ LyricsData parseLyricLrc(String input) {
           title = getValue();
           continue;
         } else if (key.tryParseInt() != null) {
-          // This is a time tag
-
+          // This is a time tag, followed by others for a line sung several
+          // times: [00:12.00][00:45.00]Chorus
+          var tokens = [token];
           var text = remaining;
-          var lyricLine = parseLyricLine(token, text);
-
-          lyricLines.add(lyricLine);
+          while (text.startsWith('[')) {
+            var end = text.indexOf(']');
+            if (end == -1) {
+              break;
+            }
+            var next = text.substring(1, end);
+            if (next.split(':').first.tryParseInt() == null) {
+              break;
+            }
+            tokens.add(next);
+            text = text.substring(end + 1).trim();
+          }
+          for (var lineToken in tokens) {
+            lyricLines.add(parseLyricLine(lineToken, text));
+          }
         } else {
           // print('discarding unknown tag: $line');
         }
@@ -104,7 +121,18 @@ LyricsData parseLyricLrc(String input) {
     }
   }
 
-  final lyricData = LyricsData(artist: author, title: title, lines: lyricLines);
+  // By time (LRC lines need not be in order), the same time in the file
+  // order.
+  var sorted = lyricLines.indexed.toList()
+    ..sort((a, b) {
+      var byTime = a.$2.time.compareTo(b.$2.time);
+      return byTime != 0 ? byTime : a.$1 - b.$1;
+    });
+  final lyricData = LyricsData(
+    artist: author,
+    title: title,
+    lines: [for (var (_, line) in sorted) line],
+  );
   return lyricData;
 }
 
@@ -241,25 +269,30 @@ LyricsLineContentParserResult parseLyricLineContent(
 /// Finds the time tag in a LRC lyric line and returns a [FindTimeResult] object.
 @visibleForTesting
 FindTimeResult findTime(String content) {
-  var index = content.indexOf('<');
-  if (index == -1) {
-    return FindTimeResult();
+  var from = 0;
+  while (true) {
+    var index = content.indexOf('<', from);
+    if (index == -1) {
+      return FindTimeResult();
+    }
+    var endIndex = content.indexOf('>', index);
+    if (endIndex == -1) {
+      return FindTimeResult();
+    }
+    var token = content.substring(index + 1, endIndex).trim();
+    var duration = tryParseLyricDuration(token);
+    if (duration == null) {
+      // A '<' of the text (`I <3 you`), look further.
+      from = index + 1;
+      continue;
+    }
+    var result = FindTimeResult(
+      index: index,
+      next: content.substring(endIndex + 1),
+      time: duration,
+    );
+    return result;
   }
-  var endIndex = content.indexOf('>', index);
-  if (endIndex == -1) {
-    return FindTimeResult();
-  }
-  var token = content.substring(index + 1, endIndex).trim();
-  var duration = tryParseLyricDuration(token);
-  if (duration == null) {
-    return FindTimeResult();
-  }
-  var result = FindTimeResult(
-    index: index,
-    next: content.substring(endIndex + 1),
-    time: duration,
-  );
-  return result;
 }
 
 @visibleForTesting
