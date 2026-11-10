@@ -10,6 +10,7 @@ import 'dart:io';
 
 import 'package:lyrics_editor_app/src/samples/lyrics_sample_songs.dart';
 import 'package:path/path.dart';
+import 'package:process_run/shell.dart' show runExecutableArguments;
 
 Future<void> main() async {
   var dir = Directory(join('assets', 'samples'));
@@ -26,7 +27,7 @@ Future<void> main() async {
         );
         await wav.writeAsBytes(song.audioWavContent(name));
         var mp3 = File(join(dir.path, name));
-        var result = await Process.run('ffmpeg', [
+        var result = await runExecutableArguments('ffmpeg', [
           '-hide_banner',
           '-loglevel',
           'error',
