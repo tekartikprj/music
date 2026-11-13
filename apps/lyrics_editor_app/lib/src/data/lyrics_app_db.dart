@@ -216,8 +216,10 @@ class LyricsDraftStore implements LyricsEditorStore {
   /// The database.
   final LyricsAppDb db;
 
-  /// The document key.
-  final String key;
+  /// The document key: the editor moves it when the document is saved
+  /// under another name (save as, subtitles saved as LRC), so that the
+  /// drafts follow the file.
+  String key;
 
   /// Called after each save (the document now differs from its file).
   final VoidCallback? onSaved;

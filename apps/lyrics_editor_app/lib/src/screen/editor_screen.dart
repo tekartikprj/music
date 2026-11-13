@@ -56,6 +56,7 @@ class _LyricsEditorScreenState extends State<LyricsEditorScreen>
   final _text = LyricsTextController();
   LyricsPlayer? _player;
   LyricsEditorController? _controller;
+  LyricsDraftStore? _draftStore;
   String? _error;
 
   /// True when the document differs from its file.
@@ -108,7 +109,7 @@ class _LyricsEditorScreenState extends State<LyricsEditorScreen>
         document: document,
         player: player,
         settings: appContext.settings,
-        store: LyricsDraftStore(
+        store: _draftStore = LyricsDraftStore(
           appContext.db,
           _opened.key,
           onSaved: () {
@@ -268,6 +269,8 @@ class _LyricsEditorScreenState extends State<LyricsEditorScreen>
   }) async {
     var oldKey = _opened.key;
     _opened = _opened.savedAs(file, format, modified: modified);
+    // The next drafts go under the new key, the file now opened.
+    _draftStore?.key = _opened.key;
     await appContext.db.deleteDraft(oldKey);
     if (_opened.key != oldKey) {
       await appContext.db.addRecent(_opened.toRecent());

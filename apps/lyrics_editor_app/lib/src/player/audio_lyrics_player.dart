@@ -158,6 +158,9 @@ class AudioLyricsPlayer
       try {
         await track.player.stop();
       } catch (_) {}
+      // An AppAudioPlayer has no dispose of its own: release the song
+      // player it loaded (just_audio, an mpv instance on Linux).
+      track.player.currentPlayer?.dispose();
     }
     await _reports.close();
   }

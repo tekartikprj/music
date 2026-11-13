@@ -16,6 +16,15 @@ const _lrc = '''[ti:Hakuna]
 [00:04.000]Ma<00:04.500>ta<00:05.000>ta
 ''';
 
+const _srt = '''1
+00:00:01,000 --> 00:00:03,000
+Hakuna
+
+2
+00:00:04,000 --> 00:00:05,000
+Matata
+''';
+
 /// A few frames, the async work (memory databases) done in between.
 Future<void> _settle(WidgetTester tester) async {
   for (var i = 0; i < 6; i++) {
@@ -111,6 +120,51 @@ void main() {
       isNull,
     );
     await close(tester);
+  });
+
+  testWidgets('once saved under another name, the drafts follow it', (
+    tester,
+  ) async {
+    // Subtitles are saved as LRC next to them: the document key changes.
+    await tester.runAsync(() async {
+      await fs.directory('/subs').create();
+      await fs.file('/subs/song.srt').writeAsString(_srt);
+    });
+    var opened = (await tester.runAsync(
+      () => appContext.opener.openFiles([
+        LyricsOpenedFile.fs(fs, '/subs/song.srt'),
+      ]),
+    ))!;
+    expect(opened.key, '/subs/song.srt');
+    await pumpEditor(tester, opened);
+
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+    await tester.sendKeyEvent(LogicalKeyboardKey.keyS);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+    await _settle(tester);
+    expect(find.text('Saved song.lrc'), findsOneWidget);
+    expect(
+      await tester.runAsync(() => fs.file('/subs/song.lrc').exists()),
+      isTrue,
+    );
+
+    // An edit after the save: its draft is the one of song.lrc.
+    await tester.tap(find.byTooltip('Show menu'));
+    await animations(tester);
+    await tester.tap(find.text('Offset…'));
+    await animations(tester);
+    await tester.enterText(find.byType(TextField).last, '100');
+    await tester.tap(find.text('OK'));
+    await _settle(tester);
+    await close(tester);
+    expect(
+      await tester.runAsync(() => appContext.db.getDraft('/subs/song.lrc')),
+      isNotNull,
+    );
+    expect(
+      await tester.runAsync(() => appContext.db.getDraft('/subs/song.srt')),
+      isNull,
+    );
   });
 
   testWidgets('a draft newer than its file is offered back', (tester) async {

@@ -296,6 +296,27 @@ class LyricsOpener {
         existing.add(LyricsOpenedFile.fs(fs, path));
       }
     }
-    return existing.isEmpty ? null : openFiles(existing);
+    if (existing.isEmpty) {
+      return null;
+    }
+    var opened = await openFiles(existing);
+    // A YouTube document saved to a file: its video still goes with it.
+    var youtube = url == null ? null : parseYtSource(url);
+    if (opened == null || youtube is! YtVideoSource) {
+      return opened;
+    }
+    var document = opened.document
+      ..media.v = CvLyricsMedia.youtube(youtube.videoId, url: url);
+    return LyricsOpenedDocument(
+      key: opened.key,
+      name: opened.name,
+      document: document,
+      lyricsFile: opened.lyricsFile,
+      format: opened.format,
+      tracks: opened.tracks,
+      youtube: youtube,
+      youtubeUrl: url,
+      lyricsModified: opened.lyricsModified,
+    );
   }
 }

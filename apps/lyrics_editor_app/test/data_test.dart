@@ -10,7 +10,7 @@ import 'package:lyrics_editor_app/src/data/lyrics_opener.dart';
 import 'package:lyrics_editor_app/src/data/lyrics_pairing.dart';
 import 'package:tekaly_lyrics_editor/lyrics_editor.dart';
 
-/// The naming of the cokedisney kiosk assets.
+/// The naming of the assets of a karaoke kiosk.
 const _kioskFolder = [
   'hakuna.mp3',
   'hakuna-vocals.mp3',
@@ -187,6 +187,30 @@ void main() {
         isNull,
       );
       expect(await opener.openRecent(opened.toRecent()), isNull);
+    });
+
+    test('a recent saved from a YouTube document keeps its video', () async {
+      var fs = newFileSystemMemory();
+      await fs.directory('/songs').create();
+      await fs.file('/songs/hakuna.lrc').writeAsString(_lrc);
+      var opener = LyricsOpener(fs: fs);
+      var youtube = opener.openYoutube('https://youtu.be/dQw4w9WgXcQ?t=42')!;
+      // Saved as /songs/hakuna.lrc: the recent has both.
+      var saved = youtube.savedAs(
+        LyricsOpenedFile.fs(fs, '/songs/hakuna.lrc'),
+        LyricsFileFormat.lrc,
+      );
+      var recent = saved.toRecent();
+      expect(recent.lyricsPath, '/songs/hakuna.lrc');
+      expect(recent.youtubeUrl, 'https://youtu.be/dQw4w9WgXcQ?t=42');
+      var reopened = (await opener.openRecent(recent))!;
+      expect(reopened.key, '/songs/hakuna.lrc');
+      expect(reopened.lyricsFile!.path, '/songs/hakuna.lrc');
+      expect(reopened.youtube?.videoId, 'dQw4w9WgXcQ');
+      expect(reopened.youtube?.start, const Duration(seconds: 42));
+      expect(reopened.youtubeUrl, 'https://youtu.be/dQw4w9WgXcQ?t=42');
+      expect(reopened.document.media.v!.kind.v, CvLyricsMediaKind.youtube);
+      expect(reopened.description, 'hakuna.lrc + YouTube');
     });
 
     test('youtube and new documents', () {
